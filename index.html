@@ -50,14 +50,10 @@
 
     /* Map */
     #map { position: fixed; inset: 0; }
-    .maplibregl-canvas {
-      filter: brightness(0.22) contrast(1.6) saturate(0.55);
-    }
     .maplibregl-ctrl-attrib {
       font-size: 9px !important;
-      background: rgba(0,0,0,0.5) !important;
-      color: rgba(255,255,255,0.5) !important;
-      filter: invert(1) hue-rotate(200deg);
+      background: rgba(0,0,0,0.6) !important;
+      color: rgba(255,255,255,0.4) !important;
     }
     .maplibregl-ctrl-logo { display: none !important; }
 
@@ -510,7 +506,7 @@ function activeWps() { return currentOption === 'A' ? WPS_A : WPS_B; }
 function initMap() {
   map = new maplibregl.Map({
     container: 'map',
-    style:     'https://tiles.openfreemap.org/styles/positron',
+    style:     DARK_STYLE,
     center:    [8.19, 48.23],
     zoom:      8.2, pitch: 45, bearing: -8,
     antialias: true,
@@ -530,11 +526,8 @@ function onMapLoad() {
   });
   map.setTerrain({ source: 'terrain-dem', exaggeration: 1.4 });
 
-  // Sky
-  map.addLayer({
-    id: 'sky', type: 'sky',
-    paint: { 'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0, 85], 'sky-atmosphere-sun-intensity': 12 },
-  });
+  // (kein Sky-Layer — MapLibre 4.7.1 unterstützt type:'sky' nicht;
+  // der dunkle bg-Background-Layer dient als Horizont/Sky-Ersatz)
 
   // ── Option A: Bulli route ──────────────────────
   map.addSource('route-a', {
@@ -875,6 +868,102 @@ function hideLoader() {
   l.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/json' }));
   document.head.appendChild(l);
 })();
+
+// ════════════════════════════════════════════════
+//  DARK MAP STYLE (inline, kein API-Key)
+// ════════════════════════════════════════════════
+const DARK_STYLE = {
+  version: 8,
+  sources: {
+    planet: { type: 'vector', url: 'https://tiles.openfreemap.org/planet' },
+  },
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+  layers: [
+    { id: 'bg',       type: 'background', paint: { 'background-color': '#0d1117' } },
+    // Vegetation
+    { id: 'lc-wood',  type: 'fill', source: 'planet', 'source-layer': 'landcover',
+      filter: ['in', 'class', 'wood', 'forest'],
+      paint: { 'fill-color': '#0c1a0c' } },
+    { id: 'lc-grass', type: 'fill', source: 'planet', 'source-layer': 'landcover',
+      filter: ['in', 'class', 'grass', 'crop', 'wetland'],
+      paint: { 'fill-color': '#101a10' } },
+    { id: 'lu-park',  type: 'fill', source: 'planet', 'source-layer': 'landuse',
+      filter: ['in', 'class', 'park', 'nature_reserve', 'protected_area', 'pitch'],
+      paint: { 'fill-color': '#0c1a0c', 'fill-opacity': 0.85 } },
+    // Wasser
+    { id: 'water',    type: 'fill', source: 'planet', 'source-layer': 'water',
+      paint: { 'fill-color': '#0f1f30' } },
+    { id: 'wway',     type: 'line', source: 'planet', 'source-layer': 'waterway',
+      paint: { 'line-color': '#142840', 'line-width': 1 } },
+    // Gebäude
+    { id: 'bldg',     type: 'fill', source: 'planet', 'source-layer': 'building',
+      minzoom: 13,
+      paint: { 'fill-color': '#161d28', 'fill-outline-color': '#1e2836' } },
+    // Straßen (von klein → groß, damit Autobahnen oben sind)
+    { id: 'rd-path',  type: 'line', source: 'planet', 'source-layer': 'transportation',
+      filter: ['in', 'class', 'path', 'track'],
+      paint: { 'line-color': '#1a2030', 'line-width': 0.8, 'line-dasharray': [2,2] } },
+    { id: 'rd-svc',   type: 'line', source: 'planet', 'source-layer': 'transportation',
+      filter: ['in', 'class', 'minor', 'service'],
+      paint: { 'line-color': '#1e2836',
+               'line-width': ['interpolate',['linear'],['zoom'],10,0.5,16,3] } },
+    { id: 'rd-sec',   type: 'line', source: 'planet', 'source-layer': 'transportation',
+      filter: ['in', 'class', 'secondary', 'tertiary'],
+      paint: { 'line-color': '#243040',
+               'line-width': ['interpolate',['linear'],['zoom'],8,0.8,16,5] } },
+    { id: 'rd-pri',   type: 'line', source: 'planet', 'source-layer': 'transportation',
+      filter: ['==', 'class', 'primary'],
+      paint: { 'line-color': '#2e3d52',
+               'line-width': ['interpolate',['linear'],['zoom'],8,1,16,7] } },
+    { id: 'rd-moto',  type: 'line', source: 'planet', 'source-layer': 'transportation',
+      filter: ['in', 'class', 'motorway', 'trunk'],
+      paint: { 'line-color': '#384d66',
+               'line-width': ['interpolate',['linear'],['zoom'],6,1,16,9] } },
+    { id: 'rd-rail',  type: 'line', source: 'planet', 'source-layer': 'transportation',
+      filter: ['in', 'class', 'rail', 'transit'],
+      paint: { 'line-color': '#1e2a3a', 'line-width': 1, 'line-dasharray': [3,3] } },
+    // Grenzen
+    { id: 'border',   type: 'line', source: 'planet', 'source-layer': 'boundary',
+      filter: ['==', 'admin_level', 2],
+      paint: { 'line-color': '#2a3550', 'line-width': 1.2, 'line-dasharray': [4,2] } },
+    // Labels — Berggipfel
+    { id: 'lbl-peak', type: 'symbol', source: 'planet', 'source-layer': 'mountain_peak',
+      minzoom: 9,
+      layout: {
+        'text-field': ['concat',
+          ['coalesce', ['get','name:de'], ['get','name']],
+          ['case', ['has','ele'], ['concat','\n',['to-string',['get','ele']],'m'], '']
+        ],
+        'text-font': ['Noto Sans Bold'], 'text-size': 11,
+        'text-anchor': 'top', 'text-offset': [0, 0.4],
+      },
+      paint: { 'text-color': '#9ab8c8', 'text-halo-color': '#0d1117', 'text-halo-width': 1.5 } },
+    // Labels — Orte
+    { id: 'lbl-village', type: 'symbol', source: 'planet', 'source-layer': 'place',
+      filter: ['in', 'class', 'village', 'hamlet', 'suburb'],
+      minzoom: 11,
+      layout: {
+        'text-field': ['coalesce', ['get','name:de'], ['get','name']],
+        'text-font': ['Noto Sans Regular'], 'text-size': 10,
+      },
+      paint: { 'text-color': '#566475', 'text-halo-color': '#0d1117', 'text-halo-width': 1 } },
+    { id: 'lbl-town',    type: 'symbol', source: 'planet', 'source-layer': 'place',
+      filter: ['in', 'class', 'town'],
+      minzoom: 8,
+      layout: {
+        'text-field': ['coalesce', ['get','name:de'], ['get','name']],
+        'text-font': ['Noto Sans Regular'], 'text-size': 12,
+      },
+      paint: { 'text-color': '#7a8fa0', 'text-halo-color': '#0d1117', 'text-halo-width': 1.2 } },
+    { id: 'lbl-city',    type: 'symbol', source: 'planet', 'source-layer': 'place',
+      filter: ['in', 'class', 'city'],
+      layout: {
+        'text-field': ['coalesce', ['get','name:de'], ['get','name']],
+        'text-font': ['Noto Sans Bold'], 'text-size': 14, 'text-transform': 'uppercase',
+      },
+      paint: { 'text-color': '#aab8c8', 'text-halo-color': '#0d1117', 'text-halo-width': 2 } },
+  ],
+};
 
 // ════════════════════════════════════════════════
 //  BOOT
