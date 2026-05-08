@@ -247,6 +247,20 @@
     .stat-val   { font-weight: 600; color: var(--label); }
     .stat-lbl   { color: var(--label2); }
 
+    /* Komoot Button */
+    .komoot-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(103,186,72,0.15);
+      color: #67ba48;
+      font-size: 12px; font-weight: 600;
+      padding: 6px 12px; border-radius: 10px;
+      text-decoration: none;
+      margin-top: 2px;
+      transition: background 0.2s;
+      width: fit-content;
+    }
+    .komoot-btn:active { background: rgba(103,186,72,0.28); }
+
     /* Travel info row (Option B only) */
     .travel-row {
       display: flex; align-items: center; gap: 6px;
@@ -375,6 +389,7 @@ const WPS_A = [
     day: 'Mi 13.05.', badge: 'Tag 1', emoji: '🌲',
     lng: 8.3740, lat: 48.5079,
     zoom: 13.0, pitch: 52, bearing: -25,
+    komoot: 'https://www.komoot.com/guide/2083/hiking-around-baiersbronn',
     stats: [
       { icon: '🚐', val: '~480 km', lbl: 'Anreise' },
       { icon: '🏕️', val: 'Tannenfels', lbl: 'Camp' },
@@ -385,6 +400,7 @@ const WPS_A = [
     day: 'Do 14.05.', badge: 'Tag 2', emoji: '🦌',
     lng: 8.2541, lat: 48.5544,
     zoom: 13.5, pitch: 55, bearing: 18,
+    komoot: 'https://www.komoot.com/de-de/tour/729901588',
     stats: [
       { icon: '🥾', val: '~10 km', lbl: 'Wanderung' },
       { icon: '⏱️', val: '3–4 h',  lbl: 'Dauer' },
@@ -395,6 +411,7 @@ const WPS_A = [
     day: 'Fr 15.05.', badge: 'Tag 3', emoji: '🏔️',
     lng: 8.1186, lat: 47.9065,
     zoom: 13, pitch: 58, bearing: 8,
+    komoot: 'https://www.komoot.com/tour/185695308',
     stats: [
       { icon: '🥾', val: '~6 km', lbl: 'Titisee' },
       { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp' },
@@ -405,6 +422,7 @@ const WPS_A = [
     day: 'Sa 16.05.', badge: 'Tag 4', emoji: '⛰️',
     lng: 8.0047, lat: 47.8742,
     zoom: 13.5, pitch: 54, bearing: -35,
+    komoot: 'https://www.komoot.com/de-de/tour/283426746',
     stats: [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~2 h',    lbl: 'Rundweg' },
@@ -422,6 +440,7 @@ const WPS_B = [
     lng: 8.1430, lat: 47.8970,   // Titisee arrival
     zoom: 11, pitch: 48, bearing: 10,
     travel: 'Hamm Hbf → Köln → Freiburg → Titisee  ·  ~5,5 h  ·  2 Umstiege',
+    komoot: 'https://www.komoot.com/tour/185695308',
     stats: [
       { icon: '🚂', val: '~5,5 h', lbl: 'Fahrtzeit' },
       { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp' },
@@ -433,6 +452,7 @@ const WPS_B = [
     lng: 8.0047, lat: 47.8742,
     zoom: 14.5, pitch: 72, bearing: -40,
     travel: 'KONUS-Bus ab Hinterzarten  ·  kostenlos mit Gästekarte',
+    komoot: 'https://www.komoot.com/de-de/tour/283426746',
     stats: [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~12 km',  lbl: 'Gipfelrunde' },
@@ -444,6 +464,7 @@ const WPS_B = [
     lng: 8.0090, lat: 47.8195,
     zoom: 13.5, pitch: 60, bearing: 25,
     travel: 'Dreiseenbahn ab Hinterzarten  ·  ~20 min',
+    komoot: 'https://www.komoot.com/tour/175890132',
     stats: [
       { icon: '🚞', val: 'Dreiseenbahn', lbl: 'Anreise' },
       { icon: '🏊', val: 'Schwimmen',    lbl: 'Schluchsee' },
@@ -455,6 +476,7 @@ const WPS_B = [
     lng: 8.1500, lat: 47.8980,
     zoom: 14, pitch: 55, bearing: -15,
     travel: 'Rückfahrt: Titisee → Freiburg → Köln → Hamm  ·  ~5,5 h',
+    komoot: 'https://www.komoot.com/tour/185695308',
     stats: [
       { icon: '🥾', val: '~6 km',   lbl: 'Rundweg' },
       { icon: '🚂', val: '~5,5 h',  lbl: 'Rückfahrt' },
@@ -682,6 +704,7 @@ function buildCards() {
       <div class="card-name">${wp.name}</div>
       <div class="card-sub">${wp.sub}</div>
       ${wp.travel ? `<div class="travel-row">🚆 <strong>${wp.travel.split('·')[0].trim()}</strong>${wp.travel.includes('·') ? ' · ' + wp.travel.split('·').slice(1).join('·').trim() : ''}</div>` : ''}
+      ${wp.komoot ? `<a href="${wp.komoot}" target="_blank" rel="noopener" class="komoot-btn" onclick="event.stopPropagation()">🗺️ Auf Komoot ansehen</a>` : ''}
       <div class="card-stats">
         ${wp.stats.map(s => `
           <div class="stat">
