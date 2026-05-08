@@ -509,9 +509,10 @@ function initMap() {
     style:     DARK_STYLE,
     center:    [8.19, 48.23],
     zoom:      8.2, pitch: 45, bearing: -8,
-    antialias: true,
+    antialias: false,
     attributionControl: { compact: true },
     maxPitch: 80,
+    fadeDuration: 0,
   });
   map.on('load', onMapLoad);
   map.on('error', () => hideLoader());
@@ -524,7 +525,7 @@ function onMapLoad() {
     tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
     tileSize: 256, encoding: 'terrarium', maxzoom: 15,
   });
-  map.setTerrain({ source: 'terrain-dem', exaggeration: 1.4 });
+  map.setTerrain({ source: 'terrain-dem', exaggeration: 1.2 });
 
   // (kein Sky-Layer — MapLibre 4.7.1 unterstützt type:'sky' nicht;
   // der dunkle bg-Background-Layer dient als Horizont/Sky-Ersatz)
@@ -753,7 +754,7 @@ function flyTo(idx, fromScroll = false) {
   if (!fromScroll) scrollCardIntoView(idx);
   map.flyTo({
     center: [wp.lng, wp.lat], zoom: wp.zoom, pitch: wp.pitch, bearing: wp.bearing,
-    duration: 2400, essential: true, curve: 1.35, speed: 0.75,
+    duration: 1800, essential: true, curve: 1.2, speed: 0.9,
   });
 }
 
