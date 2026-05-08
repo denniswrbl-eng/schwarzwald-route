@@ -83,8 +83,9 @@
     /* Fly button */
     #fly-btn {
       flex-shrink: 0;
-      display: flex; align-items: center; gap: 6px;
-      padding: 9px 16px;
+      display: flex; align-items: center; gap: 7px;
+      padding: 11px 18px;
+      min-height: 44px;
       border-radius: 22px; border: none;
       background: var(--accent);
       color: #fff;
@@ -95,22 +96,25 @@
     }
     #fly-btn:active { opacity: 0.75; transform: scale(0.95); }
     #fly-btn.flying { background: var(--red); box-shadow: 0 2px 16px rgba(255,69,58,0.4); }
+    #fly-icon { font-size: 13px; line-height: 1; }
+    #fly-progress { font-size: 12px; font-weight: 600; opacity: 0.85; margin-left: 2px; }
 
     /* Option toggle (segmented control) */
     #option-toggle {
       display: flex;
       background: rgba(28,28,30,0.85);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
-      border-radius: 12px;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 13px;
       border: 0.5px solid var(--sep);
       padding: 3px;
       gap: 3px;
       align-self: flex-start;
     }
     .opt-btn {
-      padding: 7px 14px;
-      border-radius: 9px;
+      padding: 10px 14px;
+      min-height: 36px;
+      border-radius: 10px;
       border: none;
       background: transparent;
       color: var(--label2);
@@ -118,12 +122,14 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: background 0.2s, color 0.2s, transform 0.12s;
       white-space: nowrap;
     }
+    .opt-btn:active { transform: scale(0.96); }
     .opt-btn.active {
       background: var(--accent);
       color: #fff;
+      box-shadow: 0 2px 12px rgba(10,132,255,0.25);
     }
 
     /* Compass */
@@ -135,8 +141,8 @@
       width: 44px; height: 44px;
       border-radius: 50%;
       background: rgba(28,28,30,0.85);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       border: 0.5px solid var(--sep);
       display: flex; align-items: center; justify-content: center;
       font-size: 20px;
@@ -144,6 +150,7 @@
       transition: transform 0.2s;
     }
     #compass:active { transform: scale(0.9); }
+    #compass svg { display: block; pointer-events: none; will-change: transform; }
 
     /* Progress dots */
     #dots {
@@ -152,23 +159,35 @@
       bottom: calc(var(--safe-b) + var(--sheet-peek) + 12px);
       z-index: 250;
       display: flex; gap: 6px; align-items: center;
-      transition: opacity 0.35s;
+      padding: 6px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.32);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      transition: opacity 0.35s, transform 0.35s;
     }
-    #dots.hidden { opacity: 0; pointer-events: none; }
+    #dots.hidden { opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(8px); }
     .dot {
       width: 6px; height: 6px; border-radius: 3px;
       background: rgba(255,255,255,0.3);
       transition: width 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
     }
     .dot.on { width: 20px; background: #fff; }
+    #dots.flying .dot.on {
+      animation: dot-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes dot-pulse {
+      0%,100% { background: #fff; }
+      50%      { background: var(--red); }
+    }
 
     /* Bottom Sheet */
     #sheet {
       position: fixed; inset: auto 0 0 0;
       z-index: 400;
-      background: rgba(18,18,20,0.94);
-      -webkit-backdrop-filter: blur(48px) saturate(200%);
-      backdrop-filter: blur(48px) saturate(200%);
+      background: rgba(18,18,20,0.97);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      backdrop-filter: blur(12px) saturate(160%);
       border-radius: var(--r-sheet) var(--r-sheet) 0 0;
       border-top: 0.5px solid var(--sep);
       box-shadow: 0 -4px 40px rgba(0,0,0,0.5);
@@ -181,26 +200,34 @@
       transform: translateY(calc(100% - var(--sheet-peek) - var(--safe-b)));
     }
     .handle-zone {
-      padding: 10px 0 6px;
+      padding: 14px 0 10px;
       display: flex; justify-content: center;
-      cursor: pointer; user-select: none;
+      cursor: grab; user-select: none;
+      touch-action: none;
     }
+    .handle-zone:active { cursor: grabbing; }
     .handle {
-      width: 38px; height: 4px;
-      border-radius: 2px;
+      width: 38px; height: 5px;
+      border-radius: 3px;
       background: var(--label3);
+      transition: background 0.2s, width 0.2s;
     }
+    .handle-zone:active .handle { background: rgba(255,255,255,0.55); width: 44px; }
     .sheet-top {
       display: flex; align-items: center;
       justify-content: space-between;
-      padding: 0 20px 10px;
+      padding: 2px 20px 12px;
       cursor: pointer;
+      gap: 12px;
     }
     .sheet-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .sheet-meta {
-      font-size: 13px; color: var(--label2);
+      font-size: 13px; font-weight: 500;
+      color: var(--label2);
       background: var(--bg2);
-      padding: 4px 10px; border-radius: 10px;
+      padding: 5px 11px; border-radius: 11px;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
     }
 
     /* Cards */
@@ -220,30 +247,46 @@
       scroll-snap-align: start;
       background: var(--bg2);
       border-radius: var(--r-card);
-      padding: 16px 18px;
+      padding: 14px 16px 16px;
       cursor: pointer;
       border: 1.5px solid transparent;
-      transition: border-color 0.25s, transform 0.15s, opacity 0.15s;
+      transition: border-color 0.25s, transform 0.15s, opacity 0.15s, box-shadow 0.25s;
       min-height: 148px;
       display: flex; flex-direction: column; gap: 8px;
     }
     .card:active { transform: scale(0.975); opacity: 0.85; }
-    .card.active  { border-color: var(--accent); }
+    .card.active  {
+      border-color: var(--accent);
+      box-shadow: 0 4px 24px rgba(10,132,255,0.18);
+    }
+    /* First-run swipe hint: tiny nudge to suggest horizontal swipe */
+    @keyframes swipe-nudge {
+      0%   { transform: translateX(0); }
+      30%  { transform: translateX(-22px); }
+      55%  { transform: translateX(-22px); }
+      100% { transform: translateX(0); }
+    }
+    #cards.hint .card:first-child { animation: swipe-nudge 1.6s cubic-bezier(0.32,0.72,0,1); }
 
     .card-badge {
       display: inline-flex; align-items: center; gap: 5px;
       background: rgba(10,132,255,0.18);
       color: var(--accent);
       font-size: 12px; font-weight: 700;
-      padding: 4px 10px; border-radius: 10px;
+      padding: 5px 11px; border-radius: 10px;
       letter-spacing: 0.2px; width: fit-content;
     }
     .card-badge.train { background: rgba(191,90,242,0.18); color: var(--purple); }
-    .card-name  { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.1; }
+    .card-name  { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.15; }
     .card-sub   { font-size: 13px; color: var(--label2); line-height: 1.4; }
-    .card-stats { display: flex; gap: 18px; margin-top: auto; }
-    .stat       { display: flex; align-items: center; gap: 5px; font-size: 13px; }
-    .stat-icon  { font-size: 15px; }
+    .card-stats { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 2px; }
+    .stat       {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 13px;
+      background: rgba(255,255,255,0.05);
+      padding: 5px 9px; border-radius: 9px;
+    }
+    .stat-icon  { font-size: 14px; }
     .stat-val   { font-weight: 600; color: var(--label); }
     .stat-lbl   { color: var(--label2); }
 
@@ -253,6 +296,20 @@
       object-fit: cover;
       border-radius: 10px;
       display: block;
+      background: linear-gradient(110deg, #2c2c2e 8%, #3a3a3c 18%, #2c2c2e 33%);
+      background-size: 220% 100%;
+      animation: skeleton 1.4s ease-in-out infinite;
+      transition: opacity 0.35s;
+      opacity: 0.6;
+    }
+    .card-photo[data-loaded="1"] {
+      animation: none;
+      background: transparent;
+      opacity: 1;
+    }
+    @keyframes skeleton {
+      0%   { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
     }
 
     /* Travel info row (Option B only) */
@@ -267,32 +324,59 @@
 
     /* Dennis avatar + speech bubble */
     .dennis-row {
-      display: flex; align-items: flex-end; gap: 8px;
+      display: flex; align-items: flex-end; gap: 9px;
       margin-top: 6px;
     }
     .dennis-avatar {
-      width: 36px; height: 36px; flex-shrink: 0;
+      width: 38px; height: 38px; flex-shrink: 0;
       border-radius: 50%;
       overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
     .dennis-bubble {
+      position: relative;
       flex: 1;
-      background: rgba(255,255,255,0.07);
-      border: 0.5px solid rgba(255,255,255,0.13);
-      border-radius: 12px 12px 12px 3px;
-      padding: 7px 10px;
-      font-size: 12px; color: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.08);
+      border: 0.5px solid rgba(255,255,255,0.14);
+      border-radius: 14px 14px 14px 4px;
+      padding: 8px 11px;
+      font-size: 12.5px; color: rgba(255,255,255,0.88);
       line-height: 1.45;
-      min-height: 36px;
+      min-height: 38px;
+      display: flex; align-items: center;
+      word-break: break-word;
     }
+    .dennis-bubble::before {
+      content: '';
+      position: absolute;
+      left: -5px; bottom: 0;
+      width: 10px; height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-left: 0.5px solid rgba(255,255,255,0.14);
+      border-bottom: 0.5px solid rgba(255,255,255,0.14);
+      border-bottom-left-radius: 3px;
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+    .dennis-bubble.typing::after {
+      content: '▍';
+      display: inline-block;
+      margin-left: 2px;
+      color: rgba(255,255,255,0.55);
+      font-size: 10px;
+      animation: blink 0.85s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
     @keyframes dennis-breathe {
       0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-1px); }
+      50%      { transform: translateY(-1.5px); }
     }
     .dennis-avatar { animation: dennis-breathe 3s ease-in-out infinite; }
+    .card:not(.active) .dennis-avatar { animation-play-state: paused; }
+    .card:not(.active) .dennis-bubble { opacity: 0.55; }
 
     /* Waypoint markers */
     .wp-pin {
+      position: relative;
       width: 36px; height: 36px; border-radius: 50%;
       background: var(--blue);
       border: 2.5px solid #fff;
@@ -306,6 +390,22 @@
     .wp-pin:active { transform: scale(0.88); }
     .wp-pin.active { transform: scale(1.18); }
     .wp-pin.train-pin { background: var(--purple); border-color: rgba(255,255,255,0.9); }
+    /* Pulse-Ring um aktiven Pin (Pairing mit .card.active-Glow) */
+    .wp-pin.active::after {
+      content: '';
+      position: absolute;
+      top: -2.5px; left: -2.5px;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      pointer-events: none;
+      animation: wp-pulse 1.8s ease-out infinite;
+    }
+    .wp-pin.train-pin.active::after { border-color: var(--purple); }
+    @keyframes wp-pulse {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      100% { transform: scale(1.8); opacity: 0;   }
+    }
 
     /* Train station markers (dots along route) */
     .train-stop {
@@ -313,6 +413,13 @@
       background: var(--purple);
       border: 2px solid rgba(255,255,255,0.6);
       box-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+    /* Hamm-Startpunkt (grau, dezent) — Option A */
+    .hamm-stop {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: rgba(255,255,255,0.55);
+      border: 1.5px solid rgba(0,0,0,0.6);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     }
 
     /* Loading */
@@ -338,8 +445,8 @@
       left: 50%; transform: translateX(-50%) translateY(-20px);
       z-index: 500;
       background: rgba(28,28,30,0.95);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       border: 0.5px solid var(--sep);
       border-radius: 14px;
       padding: 10px 18px;
@@ -368,9 +475,10 @@
       <div class="hdr-title">Schwarzwald Route</div>
       <div class="hdr-sub">13.–16. Mai 2026 · 2 Personen</div>
     </div>
-    <button id="fly-btn" onclick="toggleFlyRoute()">
-      <span id="fly-icon" style="font-size:12px">▶</span>
+    <button id="fly-btn" onclick="toggleFlyRoute()" aria-label="Automatischen Kamera-Flug starten">
+      <span id="fly-icon">▶</span>
       <span id="fly-label">Fly Route</span>
+      <span id="fly-progress" hidden></span>
     </button>
   </div>
 
@@ -381,7 +489,12 @@
   </div>
 </div>
 
-<div id="compass" onclick="resetCamera()">🧭</div>
+<div id="compass" onclick="resetCamera()" aria-label="Norden ausrichten">
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+    <path d="M12 3 L16 13 L12 11 L8 13 Z" fill="#ff453a"/>
+    <path d="M12 21 L8 11 L12 13 L16 11 Z" fill="rgba(255,255,255,0.7)"/>
+  </svg>
+</div>
 
 <div id="dots">
   <div class="dot on" data-i="0"></div>
@@ -409,7 +522,7 @@ const WPS_A = [
     day: 'Mi 13.05.', badge: 'Tag 1', emoji: '🌙',
     lng: 8.1397, lat: 49.3517,
     zoom: 10, pitch: 35, bearing: 0,
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Weinberge_bei_Pleisweiler.JPG?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Weinberge_bei_Pleisweiler.JPG?width=400',
     stats: [
       { icon: '🚐', val: '~320 km', lbl: 'von Hamm' },
       { icon: '🌙', val: 'Pfalz', lbl: 'Übernachtung' },
@@ -421,7 +534,7 @@ const WPS_A = [
     day: 'Do 14.05.', badge: 'Tag 2', emoji: '🦌',
     lng: 8.2541, lat: 48.5544,
     zoom: 13.5, pitch: 55, bearing: 18,
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Nationalpark_Schwarzwald_Wildsee-1.jpg?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Nationalpark_Schwarzwald_Wildsee-1.jpg?width=400',
     stats: [
       { icon: '🥾', val: '~10 km', lbl: 'Wanderung' },
       { icon: '⏱️', val: '3–4 h',  lbl: 'Dauer' },
@@ -433,7 +546,7 @@ const WPS_A = [
     day: 'Fr 15.05.', badge: 'Tag 3', emoji: '⛰️',
     lng: 8.0047, lat: 47.8742,
     zoom: 13.5, pitch: 54, bearing: -35,
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/2012_Schwarzwald_101_Feldberg_Gipfel.JPG?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/2012_Schwarzwald_101_Feldberg_Gipfel.JPG?width=400',
     stats: [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~2 h',    lbl: 'Rundweg' },
@@ -445,7 +558,7 @@ const WPS_A = [
     day: 'Sa 16.05.', badge: 'Tag 4', emoji: '💧',
     lng: 8.2220, lat: 48.0617,
     zoom: 14, pitch: 50, bearing: 10,
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wasserfall_triberg.jpg?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wasserfall_triberg.jpg?width=400',
     stats: [
       { icon: '💧', val: '163 m',  lbl: 'Fallhöhe' },
       { icon: '⏱️', val: '~2 h',   lbl: 'Spaziergang' },
@@ -464,7 +577,7 @@ const WPS_B = [
     lng: 8.1430, lat: 47.8970,
     zoom: 11, pitch: 48, bearing: 10,
     travel: 'Dortmund Hbf → Köln → Freiburg → Titisee  ·  ~4,5 h  ·  2 Umstiege',
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Titisee_(3).JPG?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Titisee_(3).JPG?width=400',
     stats: [
       { icon: '🚂', val: '~4,5 h', lbl: 'Fahrtzeit' },
       { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp' },
@@ -477,7 +590,7 @@ const WPS_B = [
     lng: 8.0047, lat: 47.8742,
     zoom: 14.5, pitch: 72, bearing: -40,
     travel: 'KONUS-Bus ab Hinterzarten  ·  kostenlos mit Gästekarte',
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/2012_Schwarzwald_101_Feldberg_Gipfel.JPG?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/2012_Schwarzwald_101_Feldberg_Gipfel.JPG?width=400',
     stats: [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~12 km',  lbl: 'Gipfelrunde' },
@@ -490,7 +603,7 @@ const WPS_B = [
     lng: 8.0090, lat: 47.8195,
     zoom: 13.5, pitch: 60, bearing: 25,
     travel: 'Dreiseenbahn ab Hinterzarten  ·  ~20 min',
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Schluchsee_Sommer_2012_-_3.jpg?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Schluchsee_Sommer_2012_-_3.jpg?width=400',
     stats: [
       { icon: '🚞', val: 'Dreiseenbahn', lbl: 'Anreise' },
       { icon: '🏊', val: 'Schwimmen',    lbl: 'Schluchsee' },
@@ -503,7 +616,7 @@ const WPS_B = [
     lng: 8.2220, lat: 48.0617,
     zoom: 14, pitch: 50, bearing: 10,
     travel: 'Schwarzwaldbahn: Titisee → Freiburg → Offenburg → Triberg  ·  dann weiter Dortmund',
-    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wasserfall_triberg.jpg?width=600',
+    photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wasserfall_triberg.jpg?width=400',
     stats: [
       { icon: '💧', val: '163 m',  lbl: 'Wasserfälle' },
       { icon: '🚂', val: '~6 h',   lbl: 'Heimfahrt' },
@@ -512,33 +625,64 @@ const WPS_B = [
   },
 ];
 
-// Zugstrecke: Hamm → Köln → Mannheim → Freiburg → Titisee
-const TRAIN_ROUTE = [
-  [7.459, 51.518],   // Dortmund Hbf (Start gemeinsam)
-  [6.959, 50.943],   // Köln Hbf
-  [8.469, 49.480],   // Mannheim Hbf
-  [8.403, 49.009],   // Karlsruhe Hbf
-  [7.776, 48.481],   // Offenburg
-  [7.842, 47.997],   // Freiburg Hbf
-  [7.939, 47.975],   // Himmelreich
-  [8.143, 47.897],   // Titisee-Neustadt (Camp)
-  [8.222, 48.062],   // Triberg (Schwarzwaldbahn, Heimweg)
-];
+// Zugstrecke als zwei separate Linien:
+//  - arrive: Anreise Tag 1 (Dortmund → ... → Hinterzarten → Titisee)
+//  - return: Tag-4-Schwarzwaldbahn (Titisee → Hinterzarten → Freiburg → Offenburg → Triberg)
+// Hinterzarten ist Hub für alle Tagesrouten — muss daher Knoten der Hauptlinie sein.
+const TRAIN_ROUTE = {
+  type: 'FeatureCollection',
+  features: [
+    {
+      type: 'Feature',
+      properties: { kind: 'arrive' },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [7.459,  51.518],   // Dortmund Hbf
+          [6.959,  50.943],   // Köln Hbf
+          [8.469,  49.480],   // Mannheim Hbf
+          [8.403,  49.009],   // Karlsruhe Hbf
+          [7.776,  48.481],   // Offenburg
+          [7.842,  47.997],   // Freiburg Hbf
+          [7.939,  47.975],   // Himmelreich
+          [8.1186, 47.9065],  // Hinterzarten (Hub)
+          [8.143,  47.897],   // Titisee-Neustadt (Camp)
+        ],
+      },
+    },
+    {
+      type: 'Feature',
+      properties: { kind: 'return' },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [8.143,  47.897],   // Titisee
+          [8.1186, 47.9065],  // Hinterzarten
+          [7.939,  47.975],   // Himmelreich
+          [7.842,  47.997],   // Freiburg Hbf
+          [7.776,  48.481],   // Offenburg
+          [8.222,  48.062],   // Triberg
+        ],
+      },
+    },
+  ],
+};
 
-// Zwischenstopps (kleine Punkte auf der Strecke)
+// Zwischenstopps (kleine Punkte auf der Strecke) — Hinterzarten ist neu dabei
 const TRAIN_STOPS = [
-  { name: 'Dortmund Hbf',  lng: 7.459,  lat: 51.518 },
-  { name: 'Köln Hbf',      lng: 6.959,  lat: 50.943 },
-  { name: 'Mannheim Hbf',  lng: 8.469,  lat: 49.480 },
-  { name: 'Freiburg Hbf',  lng: 7.842,  lat: 47.997 },
-  { name: 'Titisee',       lng: 8.143,  lat: 47.897 },
-  { name: 'Triberg',       lng: 8.222,  lat: 48.062 },
+  { name: 'Dortmund Hbf',  lng: 7.459,  lat: 51.518  },
+  { name: 'Köln Hbf',      lng: 6.959,  lat: 50.943  },
+  { name: 'Mannheim Hbf',  lng: 8.469,  lat: 49.480  },
+  { name: 'Freiburg Hbf',  lng: 7.842,  lat: 47.997  },
+  { name: 'Hinterzarten',  lng: 8.1186, lat: 47.9065 },
+  { name: 'Titisee',       lng: 8.143,  lat: 47.897  },
+  { name: 'Triberg',       lng: 8.222,  lat: 48.062  },
 ];
 
 // ════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════
-let map, markers = [], stopMarkers = [];
+let map, markers = [], stopMarkers = [], hammMarker = null;
 let currentOption  = 'A';
 let activeIdx      = 0;
 let sheetOpen      = false;
@@ -570,6 +714,8 @@ function initMap() {
     attributionControl: { compact: true },
     maxPitch: 80,
     fadeDuration: 0,
+    maxTileCacheSize: 50,
+    refreshExpiredTiles: false,
   });
   map.on('load', onMapLoad);
   map.on('error', () => hideLoader());
@@ -588,22 +734,51 @@ function onMapLoad() {
     type: 'geojson',
     data: { type: 'Feature', geometry: { type: 'LineString', coordinates: WPS_A.map(w => [w.lng, w.lat]) } },
   });
-  map.addLayer({ id: 'route-a-glow', type: 'line', source: 'route-a',
-    paint: { 'line-color': '#0a84ff', 'line-width': 10, 'line-opacity': 0.18, 'line-blur': 6 } });
+  map.addLayer({ id: 'route-a-line-casing', type: 'line', source: 'route-a',
+    paint: { 'line-color': '#003e7a', 'line-width': 6.5, 'line-opacity': 0.85 },
+    layout: { 'line-cap': 'round', 'line-join': 'round' } });
   map.addLayer({ id: 'route-a-line', type: 'line', source: 'route-a',
-    paint: { 'line-color': '#0a84ff', 'line-width': 3, 'line-opacity': 0.9, 'line-dasharray': [3,2] },
+    paint: { 'line-color': '#0a84ff', 'line-width': 3.5, 'line-opacity': 1, 'line-dasharray': [3,2] },
+    layout: { 'line-cap': 'round', 'line-join': 'round' } });
+
+  // ── Option A: Anreise Hamm→Pfalz + Heimweg Triberg→Hamm ──
+  map.addSource('route-a-extra', {
+    type: 'geojson',
+    data: {
+      type: 'FeatureCollection',
+      features: [
+        { type: 'Feature', properties: { kind: 'arrive' },
+          geometry: { type: 'LineString', coordinates: [[7.819, 51.679], [8.1397, 49.3517]] } },
+        { type: 'Feature', properties: { kind: 'return' },
+          geometry: { type: 'LineString', coordinates: [[8.2220, 48.0617], [7.819, 51.679]] } },
+      ],
+    },
+  });
+  map.addLayer({ id: 'route-a-extra-line', type: 'line', source: 'route-a-extra',
+    paint: { 'line-color': '#0a84ff', 'line-width': 2, 'line-opacity': 0.55, 'line-dasharray': [1, 3] },
     layout: { 'line-cap': 'round', 'line-join': 'round' } });
 
   // ── Option B: Zugstrecke ───────────────────────
+  // Zwei Linien aus einer Source: Anreise (kräftig) + Heimweg-Schwarzwaldbahn (dünner)
   map.addSource('route-b', {
     type: 'geojson',
-    data: { type: 'Feature', geometry: { type: 'LineString', coordinates: TRAIN_ROUTE } },
+    data: TRAIN_ROUTE,
   });
-  map.addLayer({ id: 'route-b-glow', type: 'line', source: 'route-b',
-    paint: { 'line-color': '#bf5af2', 'line-width': 10, 'line-opacity': 0.15, 'line-blur': 6 },
-    layout: { visibility: 'none' } });
-  map.addLayer({ id: 'route-b-line', type: 'line', source: 'route-b',
-    paint: { 'line-color': '#bf5af2', 'line-width': 3, 'line-opacity': 0.9, 'line-dasharray': [2, 3] },
+  map.addLayer({ id: 'route-b-arrive-casing', type: 'line', source: 'route-b',
+    filter: ['==', ['get', 'kind'], 'arrive'],
+    paint: { 'line-color': '#5a1f8a', 'line-width': 6.5, 'line-opacity': 0.85 },
+    layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
+  map.addLayer({ id: 'route-b-arrive', type: 'line', source: 'route-b',
+    filter: ['==', ['get', 'kind'], 'arrive'],
+    paint: { 'line-color': '#bf5af2', 'line-width': 3.5, 'line-opacity': 1, 'line-dasharray': [2, 3] },
+    layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
+  map.addLayer({ id: 'route-b-return-casing', type: 'line', source: 'route-b',
+    filter: ['==', ['get', 'kind'], 'return'],
+    paint: { 'line-color': '#5a1f8a', 'line-width': 5.5, 'line-opacity': 0.85 },
+    layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
+  map.addLayer({ id: 'route-b-return', type: 'line', source: 'route-b',
+    filter: ['==', ['get', 'kind'], 'return'],
+    paint: { 'line-color': '#bf5af2', 'line-width': 2.5, 'line-opacity': 0.7, 'line-dasharray': [1, 2.5] },
     layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
 
   // Option B: lokale Tagesrouten (Hinterzarten ↔ Feldberg, ↔ Schluchsee)
@@ -622,6 +797,9 @@ function onMapLoad() {
       })),
     },
   });
+  map.addLayer({ id: 'route-b-local-line-casing', type: 'line', source: 'route-b-local',
+    paint: { 'line-color': '#5a1f8a', 'line-width': 5, 'line-opacity': 0.85 },
+    layout: { 'line-cap': 'round', visibility: 'none' } });
   map.addLayer({ id: 'route-b-local-line', type: 'line', source: 'route-b-local',
     paint: { 'line-color': '#bf5af2', 'line-width': 2, 'line-opacity': 0.6, 'line-dasharray': [1,3] },
     layout: { 'line-cap': 'round', visibility: 'none' } });
@@ -632,16 +810,24 @@ function onMapLoad() {
   // ── Train stop dots ───────────────────────────
   buildTrainStops();
 
+  // ── Hamm-Mini-Dot (Startpunkt Bulli-Anreise) ──
+  buildHammStop();
+
   // ── Cards ──────────────────────────────────────
   buildCards();
-  firstSpeechTimer = setTimeout(() => {
-    firstSpeechTimer = null;
-    triggerSpeech(0);
-  }, 3600);
 
   // ── Scroll-Listener einmalig anhängen (Bug 1) ─
   document.getElementById('cards')
     .addEventListener('scroll', onCardsScroll, { passive: true });
+
+  // ── Compass dreht mit Bearing ─────────────────
+  const compassSvg = document.querySelector('#compass svg');
+  const updateCompass = () => {
+    if (compassSvg) compassSvg.style.transform = `rotate(${-map.getBearing()}deg)`;
+  };
+  map.on('rotate', updateCompass);
+  map.on('move',   updateCompass);
+  updateCompass();
 
   // ── Intro fly-in ──────────────────────────────
   hideLoader();
@@ -649,9 +835,27 @@ function onMapLoad() {
     map.flyTo({ center: [8.19, 48.22], zoom: 9.0, pitch: 52, bearing: -10, duration: 2800, essential: true });
     introSheetTimer = setTimeout(() => {
       introSheetTimer = null;
-      if (!isFlyingRoute) openSheet();
+      if (isFlyingRoute) return;
+      openSheet();
+      // Nach Sheet-Animation: Speech starten + Swipe-Hint einmalig
+      firstSpeechTimer = setTimeout(() => {
+        firstSpeechTimer = null;
+        triggerSpeech(0);
+        runSwipeHint();
+      }, 480);
     }, 3400);
   }, 300);
+}
+
+// Einmaliger Swipe-Hint: leichter Bounce der ersten Card,
+// damit Laura sieht, dass die Cards horizontal swipebar sind.
+function runSwipeHint() {
+  if (sessionStorage.getItem('swipeHintShown')) return;
+  const wrap = document.getElementById('cards');
+  if (!wrap) return;
+  sessionStorage.setItem('swipeHintShown', '1');
+  wrap.classList.add('hint');
+  setTimeout(() => wrap.classList.remove('hint'), 1700);
 }
 
 // ════════════════════════════════════════════════
@@ -687,6 +891,17 @@ function buildTrainStops() {
   });
 }
 
+function buildHammStop() {
+  if (hammMarker) { hammMarker.remove(); hammMarker = null; }
+  if (currentOption !== 'A') return;
+
+  const el = document.createElement('div');
+  el.className = 'hamm-stop';
+  el.title = 'Hamm Hbf · Start';
+  hammMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+    .setLngLat([7.819, 51.679]).addTo(map);
+}
+
 // ════════════════════════════════════════════════
 //  OPTION SWITCH
 // ════════════════════════════════════════════════
@@ -703,8 +918,10 @@ function switchOption(opt) {
   // Map layer visibility
   const showA = opt === 'A' ? 'visible' : 'none';
   const showB = opt === 'B' ? 'visible' : 'none';
-  ['route-a-glow', 'route-a-line'].forEach(id => map.setLayoutProperty(id, 'visibility', showA));
-  ['route-b-glow', 'route-b-line', 'route-b-local-line'].forEach(id => map.setLayoutProperty(id, 'visibility', showB));
+  ['route-a-line', 'route-a-line-casing', 'route-a-extra-line'].forEach(id => map.setLayoutProperty(id, 'visibility', showA));
+  ['route-b-arrive',     'route-b-arrive-casing',
+   'route-b-return',     'route-b-return-casing',
+   'route-b-local-line', 'route-b-local-line-casing'].forEach(id => map.setLayoutProperty(id, 'visibility', showB));
 
   // Accent color CSS
   document.documentElement.style.setProperty('--accent', opt === 'A' ? 'var(--blue)' : 'var(--purple)');
@@ -715,10 +932,12 @@ function switchOption(opt) {
   // Rebuild markers + stops + cards
   buildMarkers();
   buildTrainStops();
+  buildHammStop();
   buildCards();
   setActive(0);
 
   // Camera: zoom out to show full train route for B
+  map.stop();
   if (opt === 'B') {
     map.flyTo({ center: [7.8, 49.8], zoom: 5.5, pitch: 35, bearing: 0, duration: 2200, essential: true });
     showToast('Option B: Zug + Zelt 🚂');
@@ -739,7 +958,7 @@ function buildCards() {
     card.className = 'card' + (i === activeIdx ? ' active' : '');
     const badgeClass = wp.isTrain ? 'card-badge train' : 'card-badge';
     card.innerHTML = `
-      ${wp.photo ? `<img class="card-photo" src="${wp.photo}" alt="${wp.name}" loading="lazy" onerror="this.style.display='none'">` : ''}
+      ${wp.photo ? `<img class="card-photo" src="${wp.photo}" alt="${wp.name}" loading="lazy" decoding="async" onload="this.dataset.loaded=1" onerror="this.style.display='none'">` : ''}
       <div class="${badgeClass}">${wp.emoji} ${wp.badge} · ${wp.day}</div>
       <div class="card-name">${wp.name}</div>
       <div class="card-sub">${wp.sub}</div>
@@ -833,7 +1052,10 @@ function setActive(idx) {
 function triggerSpeech(idx) {
   if (speechTimer) clearTimeout(speechTimer);
   if (talkTimer)   clearInterval(talkTimer);
-  document.querySelectorAll('.dennis-bubble').forEach(b => b.textContent = '');
+  document.querySelectorAll('.dennis-bubble').forEach(b => {
+    b.textContent = '';
+    b.classList.remove('typing');
+  });
   document.querySelectorAll('[id^="mouth-"]').forEach(m => m.setAttribute('d', MOUTH_C));
 
   const bubble = document.getElementById('bubble-' + idx);
@@ -843,6 +1065,7 @@ function triggerSpeech(idx) {
   const text = activeWps()[idx]?.speech || '';
   if (!text) return;
 
+  bubble.classList.add('typing');
   let open = false;
   talkTimer = setInterval(() => {
     open = !open;
@@ -858,6 +1081,8 @@ function triggerSpeech(idx) {
       clearInterval(talkTimer);
       talkTimer = null;
       mouth.setAttribute('d', MOUTH_C);
+      // Cursor noch ~1s nachblinken, dann ausblenden
+      speechTimer = setTimeout(() => bubble.classList.remove('typing'), 1100);
     }
   }
   type();
@@ -871,6 +1096,7 @@ function flyTo(idx, fromScroll = false) {
   const wp = activeWps()[idx];
   setActive(idx);
   if (!fromScroll) scrollCardIntoView(idx);
+  map.stop();
   map.flyTo({
     center: [wp.lng, wp.lat], zoom: wp.zoom, pitch: wp.pitch, bearing: wp.bearing,
     duration: 1800, essential: true, curve: 1.2, speed: 0.9,
@@ -879,6 +1105,7 @@ function flyTo(idx, fromScroll = false) {
 
 function resetCamera() {
   if (!map) return;
+  map.stop();
   if (currentOption === 'B') {
     map.flyTo({ center: [7.8, 49.8], zoom: 5.5, pitch: 35, bearing: 0, duration: 1800, essential: true });
   } else {
@@ -894,18 +1121,25 @@ function toggleFlyRoute() { isFlyingRoute ? stopFlyRoute() : startFlyRoute(); }
 function startFlyRoute() {
   if (introSheetTimer) { clearTimeout(introSheetTimer); introSheetTimer = null; }
   isFlyingRoute = true;
-  document.getElementById('fly-btn').classList.add('flying');
+  const total = activeWps().length;
+  const flyBtn  = document.getElementById('fly-btn');
+  const flyProg = document.getElementById('fly-progress');
+  flyBtn.classList.add('flying');
   document.getElementById('fly-icon').textContent  = '■';
   document.getElementById('fly-label').textContent = 'Stop';
-  document.getElementById('dots').classList.add('hidden');
+  flyProg.hidden = false;
+  // Dots bleiben sichtbar, pulsen aber rot — visueller Anker
+  document.getElementById('dots').classList.add('flying');
   closeSheet();
-  showToast('Automatischer Kamera-Flug 🎬');
+  showToast('Kamera-Flug · Tag 1/' + total + ' 🎬');
 
   let step = 0;
   function next() {
     if (!isFlyingRoute) return;
-    if (step >= activeWps().length) { stopFlyRoute(); return; }
-    flyTo(step); step++;
+    if (step >= total) { stopFlyRoute(); return; }
+    flyProg.textContent = '· ' + (step + 1) + '/' + total;
+    flyTo(step);
+    step++;
     flyTimer = setTimeout(next, 4200);
   }
   next();
@@ -914,10 +1148,13 @@ function startFlyRoute() {
 function stopFlyRoute() {
   isFlyingRoute = false;
   if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
+  const flyProg = document.getElementById('fly-progress');
   document.getElementById('fly-btn').classList.remove('flying');
   document.getElementById('fly-icon').textContent  = '▶';
   document.getElementById('fly-label').textContent = 'Fly Route';
-  document.getElementById('dots').classList.remove('hidden');
+  flyProg.hidden = true;
+  flyProg.textContent = '';
+  document.getElementById('dots').classList.remove('flying');
   openSheet();
 }
 
@@ -928,25 +1165,77 @@ function openSheet()   { sheetOpen = true;  document.getElementById('sheet').cla
 function closeSheet()  { sheetOpen = false; document.getElementById('sheet').classList.add('collapsed'); }
 function toggleSheet() { sheetOpen ? closeSheet() : openSheet(); }
 
+// Live-Drag mit Velocity-basiertem Snap.
+// Sheet folgt dem Finger 1:1, Snapping nach Geschwindigkeit (Flick) oder Distanz (Slow Drag).
 (function setupDrag() {
   const sheet = document.getElementById('sheet');
-  let startY = 0, startOpen = false, dragging = false;
+  const handleZone = document.getElementById('handle-zone');
+  const sheetTop = document.querySelector('.sheet-top');
+
+  let startY = 0, lastY = 0, lastT = 0, velocity = 0;
+  let startOpen = false, dragging = false;
+
+  function isDragSurface(t) {
+    return handleZone.contains(t) || sheetTop.contains(t);
+  }
+  function collapsedOffset() {
+    const cs = getComputedStyle(document.documentElement);
+    const peek = parseFloat(cs.getPropertyValue('--sheet-peek')) || 88;
+    const safeB = parseFloat(cs.getPropertyValue('--safe-b')) || 0;
+    return sheet.offsetHeight - peek - safeB;
+  }
+
   sheet.addEventListener('touchstart', e => {
-    const t = e.target;
-    if (!document.getElementById('handle-zone').contains(t) && !document.querySelector('.sheet-top').contains(t)) return;
-    startY = e.touches[0].clientY; startOpen = sheetOpen; dragging = true;
+    if (!isDragSurface(e.target)) return;
+    const y = e.touches[0].clientY;
+    startY = lastY = y;
+    lastT = performance.now();
+    velocity = 0;
+    startOpen = sheetOpen;
+    dragging = true;
+    sheet.style.transition = 'none';
   }, { passive: true });
-  sheet.addEventListener('touchend', e => {
+
+  sheet.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const y = e.touches[0].clientY;
+    const t = performance.now();
+    const dt = t - lastT;
+    if (dt > 0) {
+      // Geglättete Velocity (px/ms; positiv = nach unten)
+      const v = (y - lastY) / dt;
+      velocity = velocity * 0.5 + v * 0.5;
+    }
+    lastY = y; lastT = t;
+
+    const off = collapsedOffset();
+    const base = startOpen ? 0 : off;
+    // Mit Rubber-Band-Effekt jenseits der Endpunkte
+    let translate = base + (y - startY);
+    if (translate < 0)   translate = translate * 0.25;
+    if (translate > off) translate = off + (translate - off) * 0.25;
+    sheet.style.transform = `translateY(${translate}px)`;
+  }, { passive: true });
+
+  function endDrag() {
     if (!dragging) return;
     dragging = false;
-    const dy = e.changedTouches[0].clientY - startY;
-    if (dy > 55 && startOpen)   closeSheet();
-    if (dy < -55 && !startOpen) openSheet();
-  }, { passive: true });
-  sheet.addEventListener('touchcancel', () => {
-    if (!dragging) return;
-    dragging = false;
-  }, { passive: true });
+    sheet.style.transition = '';
+    sheet.style.transform = '';
+
+    const dy = lastY - startY;
+    const v  = velocity; // px/ms
+    let shouldOpen;
+    if (Math.abs(v) > 0.4) {
+      shouldOpen = v < 0; // schneller Flick
+    } else {
+      shouldOpen = startOpen ? dy < 80 : dy < -50;
+    }
+    shouldOpen ? openSheet() : closeSheet();
+  }
+
+  sheet.addEventListener('touchend',    endDrag, { passive: true });
+  sheet.addEventListener('touchcancel', endDrag, { passive: true });
 })();
 
 // ════════════════════════════════════════════════
@@ -995,11 +1284,27 @@ function hideLoader() {
 const DARK_STYLE = {
   version: 8,
   sources: {
-    planet: { type: 'vector', url: 'https://tiles.openfreemap.org/planet' },
+    planet:    { type: 'vector', url: 'https://tiles.openfreemap.org/planet' },
+    hillshade: {
+      type: 'raster',
+      tiles: ['https://tiles.stadiamaps.com/tiles/stamen_terrain_background/{z}/{x}/{y}.png'],
+      tileSize: 256,
+      maxzoom: 14,
+      attribution: '© Stadia Maps © Stamen Design © OpenStreetMap',
+    },
   },
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   layers: [
     { id: 'bg',       type: 'background', paint: { 'background-color': '#0d1117' } },
+    // Hillshade (Stamen Terrain Background) — liegt unter Vegetation/Wasser/Routen
+    { id: 'hillshade', type: 'raster', source: 'hillshade',
+      paint: {
+        'raster-opacity':         0.35,
+        'raster-saturation':      -0.7,
+        'raster-contrast':        0.1,
+        'raster-brightness-min':  0,
+        'raster-brightness-max':  0.6,
+      } },
     // Vegetation
     { id: 'lc-wood',  type: 'fill', source: 'planet', 'source-layer': 'landcover',
       filter: ['in', 'class', 'wood', 'forest'],
@@ -1084,6 +1389,19 @@ const DARK_STYLE = {
       paint: { 'text-color': '#aab8c8', 'text-halo-color': '#0d1117', 'text-halo-width': 2 } },
   ],
 };
+
+// ════════════════════════════════════════════════
+//  VISIBILITY — Timers pausieren im Background
+// ════════════════════════════════════════════════
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (speechTimer) { clearTimeout(speechTimer);  speechTimer = null; }
+    if (talkTimer)   { clearInterval(talkTimer);   talkTimer = null; }
+    document.querySelectorAll('[id^="mouth-"]').forEach(m => m.setAttribute('d', MOUTH_C));
+    if (isFlyingRoute) stopFlyRoute();
+    if (map) map.stop();
+  }
+});
 
 // ════════════════════════════════════════════════
 //  BOOT
