@@ -3,73 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-  <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Schwarzwald">
   <meta name="theme-color" content="#000000">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23000'/><text y='.9em' font-size='76' x='12'>🌲</text></svg>">
-
   <title>Schwarzwald Route</title>
-
-  <!-- MapLibre GL JS 4 -->
   <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
   <style>
-    /* ── Design tokens (iOS Dark) ─────────────────── */
     :root {
       --bg0: #000000;
       --bg1: #1c1c1e;
       --bg2: #2c2c2e;
       --bg3: #3a3a3c;
-      --label:    #ffffff;
-      --label2:   rgba(255,255,255,0.6);
-      --label3:   rgba(255,255,255,0.3);
-      --blue:     #0a84ff;
-      --green:    #30d158;
-      --red:      #ff453a;
-      --orange:   #ff9f0a;
-      --sep:      rgba(255,255,255,0.12);
-      --r-card:   16px;
-      --r-sheet:  22px;
-      --safe-t:   env(safe-area-inset-top,    0px);
-      --safe-b:   env(safe-area-inset-bottom, 0px);
-      --safe-l:   env(safe-area-inset-left,   0px);
-      --safe-r:   env(safe-area-inset-right,  0px);
+      --label:  #ffffff;
+      --label2: rgba(255,255,255,0.6);
+      --label3: rgba(255,255,255,0.3);
+      --blue:   #0a84ff;
+      --green:  #30d158;
+      --red:    #ff453a;
+      --orange: #ff9f0a;
+      --purple: #bf5af2;
+      --sep:    rgba(255,255,255,0.12);
+      --r-card:  16px;
+      --r-sheet: 22px;
+      --safe-t: env(safe-area-inset-top,    0px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
       --sheet-peek: 88px;
+      --accent: var(--blue);
     }
-
     *, *::before, *::after {
-      margin: 0; padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
       -webkit-font-smoothing: antialiased;
     }
-
     html, body {
       width: 100%; height: 100%;
       background: var(--bg0);
       overflow: hidden;
-      font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+      font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
       color: var(--label);
       overscroll-behavior: none;
     }
 
-    /* ── Map ──────────────────────────────────────── */
-    #map {
-      position: fixed;
-      inset: 0;
-      width: 100%; height: 100%;
-    }
-
-    /* Dark-mode the map: invert + hue-rotate flips light→dark */
+    /* Map */
+    #map { position: fixed; inset: 0; }
     .maplibregl-canvas {
       filter: invert(1) hue-rotate(200deg) saturate(0.75) brightness(0.85);
     }
-
-    /* Keep logos readable */
     .maplibregl-ctrl-attrib {
       font-size: 9px !important;
       background: rgba(0,0,0,0.5) !important;
@@ -78,74 +61,79 @@
     }
     .maplibregl-ctrl-logo { display: none !important; }
 
-    /* ── Header ───────────────────────────────────── */
+    /* Header */
     #header {
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 300;
-      padding: calc(var(--safe-t) + 14px) 18px 18px;
-      background: linear-gradient(
-        to bottom,
-        rgba(0,0,0,0.75) 0%,
-        rgba(0,0,0,0.3)  60%,
-        transparent      100%
-      );
+      padding: calc(var(--safe-t) + 14px) 18px 16px;
+      background: linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.3) 65%,transparent 100%);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      flex-direction: column;
+      gap: 10px;
       pointer-events: none;
     }
     #header > * { pointer-events: auto; }
 
-    .hdr-text {}
-    .hdr-title {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -0.4px;
-      line-height: 1.2;
-    }
-    .hdr-sub {
-      font-size: 12px;
-      color: var(--label2);
-      font-weight: 400;
-      margin-top: 1px;
-    }
-
-    /* Fly Route button */
-    #fly-btn {
-      flex-shrink: 0;
+    .hdr-row1 {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .hdr-title { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; }
+    .hdr-sub   { font-size: 12px; color: var(--label2); margin-top: 1px; }
+
+    /* Fly button */
+    #fly-btn {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 6px;
       padding: 9px 16px;
-      border-radius: 22px;
-      border: none;
-      background: var(--blue);
+      border-radius: 22px; border: none;
+      background: var(--accent);
       color: #fff;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 600;
+      font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer;
+      transition: background 0.25s, opacity 0.15s, transform 0.1s;
+      box-shadow: 0 2px 16px rgba(10,132,255,0.35);
+    }
+    #fly-btn:active { opacity: 0.75; transform: scale(0.95); }
+    #fly-btn.flying { background: var(--red); box-shadow: 0 2px 16px rgba(255,69,58,0.4); }
+
+    /* Option toggle (segmented control) */
+    #option-toggle {
+      display: flex;
+      background: rgba(28,28,30,0.85);
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
-      transition: background 0.25s, opacity 0.15s, transform 0.1s;
-      box-shadow: 0 2px 16px rgba(10,132,255,0.4);
+      border-radius: 12px;
+      border: 0.5px solid var(--sep);
+      padding: 3px;
+      gap: 3px;
+      align-self: flex-start;
     }
-    #fly-btn:active {
-      opacity: 0.75;
-      transform: scale(0.95);
+    .opt-btn {
+      padding: 7px 14px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--label2);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
     }
-    #fly-btn.flying {
-      background: var(--red);
-      box-shadow: 0 2px 16px rgba(255,69,58,0.4);
+    .opt-btn.active {
+      background: var(--accent);
+      color: #fff;
     }
-    .fly-icon { font-size: 12px; }
 
-    /* ── Compass badge (top-right, below notch) ───── */
+    /* Compass */
     #compass {
       position: fixed;
-      top: calc(var(--safe-t) + 72px);
+      top: calc(var(--safe-t) + 106px);
       right: 16px;
       z-index: 300;
       width: 44px; height: 44px;
@@ -154,110 +142,83 @@
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
       border: 0.5px solid var(--sep);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       font-size: 20px;
       cursor: pointer;
       transition: transform 0.2s;
     }
     #compass:active { transform: scale(0.9); }
 
-    /* ── Progress dots ────────────────────────────── */
+    /* Progress dots */
     #dots {
       position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 50%; transform: translateX(-50%);
       bottom: calc(var(--safe-b) + var(--sheet-peek) + 12px);
       z-index: 250;
-      display: flex;
-      gap: 6px;
-      align-items: center;
+      display: flex; gap: 6px; align-items: center;
       transition: opacity 0.35s;
     }
     #dots.hidden { opacity: 0; pointer-events: none; }
     .dot {
-      width: 6px; height: 6px;
-      border-radius: 3px;
+      width: 6px; height: 6px; border-radius: 3px;
       background: rgba(255,255,255,0.3);
       transition: width 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
     }
     .dot.on { width: 20px; background: #fff; }
 
-    /* ── Bottom Sheet ─────────────────────────────── */
+    /* Bottom Sheet */
     #sheet {
-      position: fixed;
-      inset: auto 0 0 0;
+      position: fixed; inset: auto 0 0 0;
       z-index: 400;
-      background: rgba(18, 18, 20, 0.94);
+      background: rgba(18,18,20,0.94);
       -webkit-backdrop-filter: blur(48px) saturate(200%);
       backdrop-filter: blur(48px) saturate(200%);
       border-radius: var(--r-sheet) var(--r-sheet) 0 0;
       border-top: 0.5px solid var(--sep);
       box-shadow: 0 -4px 40px rgba(0,0,0,0.5);
-
-      /* height = content; translated when collapsed */
       transform: translateY(0);
-      transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+      transition: transform 0.42s cubic-bezier(0.32,0.72,0,1);
       will-change: transform;
       touch-action: pan-y;
-      /* prevent map touches through sheet */
-      pointer-events: auto;
     }
     #sheet.collapsed {
-      /* show only peek-height */
       transform: translateY(calc(100% - var(--sheet-peek) - var(--safe-b)));
     }
-
-    /* drag handle area */
     .handle-zone {
       padding: 10px 0 6px;
-      display: flex;
-      justify-content: center;
-      cursor: pointer;
-      user-select: none;
+      display: flex; justify-content: center;
+      cursor: pointer; user-select: none;
     }
     .handle {
       width: 38px; height: 4px;
       border-radius: 2px;
       background: var(--label3);
     }
-
-    /* sheet title row (visible in peek) */
     .sheet-top {
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       justify-content: space-between;
       padding: 0 20px 10px;
       cursor: pointer;
     }
-    .sheet-title {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
+    .sheet-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .sheet-meta {
-      font-size: 13px;
-      color: var(--label2);
+      font-size: 13px; color: var(--label2);
       background: var(--bg2);
-      padding: 4px 10px;
-      border-radius: 10px;
+      padding: 4px 10px; border-radius: 10px;
     }
 
-    /* cards horizontal scroll */
+    /* Cards */
     #cards {
-      overflow-x: auto;
-      overflow-y: hidden;
+      overflow-x: auto; overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
       scroll-snap-type: x mandatory;
-      display: flex;
-      gap: 12px;
+      touch-action: pan-x;
+      display: flex; gap: 12px;
       padding: 4px 20px calc(var(--safe-b) + 24px);
       scrollbar-width: none;
     }
     #cards::-webkit-scrollbar { display: none; }
 
-    /* Day card */
     .card {
       flex: 0 0 calc(100vw - 56px);
       scroll-snap-align: start;
@@ -268,71 +229,63 @@
       border: 1.5px solid transparent;
       transition: border-color 0.25s, transform 0.15s, opacity 0.15s;
       min-height: 148px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: flex; flex-direction: column; gap: 8px;
     }
     .card:active { transform: scale(0.975); opacity: 0.85; }
-    .card.active  { border-color: var(--blue); }
+    .card.active  { border-color: var(--accent); }
 
     .card-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(10,132,255,0.2);
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 10px;
-      letter-spacing: 0.2px;
-      width: fit-content;
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(10,132,255,0.18);
+      color: var(--accent);
+      font-size: 12px; font-weight: 700;
+      padding: 4px 10px; border-radius: 10px;
+      letter-spacing: 0.2px; width: fit-content;
     }
-    .card-name {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.4px;
-      line-height: 1.1;
-    }
-    .card-sub {
-      font-size: 13px;
-      color: var(--label2);
-      line-height: 1.4;
-    }
-    .card-stats {
-      display: flex;
-      gap: 18px;
-      margin-top: auto;
-    }
-    .stat {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 13px;
-    }
-    .stat-icon { font-size: 15px; }
-    .stat-val  { font-weight: 600; color: var(--label); }
-    .stat-lbl  { color: var(--label2); }
+    .card-badge.train { background: rgba(191,90,242,0.18); color: var(--purple); }
+    .card-name  { font-size: 20px; font-weight: 700; letter-spacing: -0.4px; line-height: 1.1; }
+    .card-sub   { font-size: 13px; color: var(--label2); line-height: 1.4; }
+    .card-stats { display: flex; gap: 18px; margin-top: auto; }
+    .stat       { display: flex; align-items: center; gap: 5px; font-size: 13px; }
+    .stat-icon  { font-size: 15px; }
+    .stat-val   { font-weight: 600; color: var(--label); }
+    .stat-lbl   { color: var(--label2); }
 
-    /* ── Waypoint markers ─────────────────────────── */
+    /* Travel info row (Option B only) */
+    .travel-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--label2);
+      padding: 6px 10px;
+      background: rgba(191,90,242,0.1);
+      border-radius: 10px;
+    }
+    .travel-row strong { color: var(--purple); }
+
+    /* Waypoint markers */
     .wp-pin {
-      width: 36px; height: 36px;
-      border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: var(--blue);
       border: 2.5px solid #fff;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-      font-weight: 800;
-      color: #fff;
+      font-size: 14px; font-weight: 800; color: #fff;
       cursor: pointer;
       box-shadow: 0 3px 14px rgba(0,0,0,0.55);
       transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
       user-select: none;
     }
-    .wp-pin:active   { transform: scale(0.88); }
-    .wp-pin.active   { background: var(--green); transform: scale(1.18); }
+    .wp-pin:active { transform: scale(0.88); }
+    .wp-pin.active { transform: scale(1.18); }
+    .wp-pin.train-pin { background: var(--purple); border-color: rgba(255,255,255,0.9); }
 
-    /* ── Loading overlay ──────────────────────────── */
+    /* Train station markers (dots along route) */
+    .train-stop {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--purple);
+      border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+
+    /* Loading */
     #loader {
       position: fixed; inset: 0; z-index: 900;
       background: var(--bg0);
@@ -344,14 +297,14 @@
     .loader-emoji { font-size: 52px; animation: pulse 2s ease-in-out infinite; }
     .loader-text  { font-size: 17px; font-weight: 600; color: var(--label2); }
     @keyframes pulse {
-      0%, 100% { transform: scale(1);    opacity: 1;   }
-      50%       { transform: scale(1.08); opacity: 0.7; }
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(1.08); opacity: 0.7; }
     }
 
-    /* ── Notification toast ───────────────────────── */
+    /* Toast */
     #toast {
       position: fixed;
-      top: calc(var(--safe-t) + 68px);
+      top: calc(var(--safe-t) + 80px);
       left: 50%; transform: translateX(-50%) translateY(-20px);
       z-index: 500;
       background: rgba(28,28,30,0.95);
@@ -360,49 +313,46 @@
       border: 0.5px solid var(--sep);
       border-radius: 14px;
       padding: 10px 18px;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 14px; font-weight: 500;
       white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
     }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 
-<!-- Loading screen -->
 <div id="loader">
   <div class="loader-emoji">🌲</div>
   <div class="loader-text">Schwarzwald wird geladen…</div>
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
-
-<!-- Map container -->
 <div id="map"></div>
 
 <!-- Header -->
 <div id="header">
-  <div class="hdr-text">
-    <div class="hdr-title">Schwarzwald Route</div>
-    <div class="hdr-sub">13.–16. Mai 2026 · 2 Personen</div>
+  <div class="hdr-row1">
+    <div>
+      <div class="hdr-title">Schwarzwald Route</div>
+      <div class="hdr-sub">13.–16. Mai 2026 · 2 Personen</div>
+    </div>
+    <button id="fly-btn" onclick="toggleFlyRoute()">
+      <span id="fly-icon" style="font-size:12px">▶</span>
+      <span id="fly-label">Fly Route</span>
+    </button>
   </div>
-  <button id="fly-btn" onclick="toggleFlyRoute()">
-    <span class="fly-icon" id="fly-icon">▶</span>
-    <span id="fly-label">Fly Route</span>
-  </button>
+
+  <!-- Option toggle -->
+  <div id="option-toggle">
+    <button class="opt-btn active" id="btn-a" onclick="switchOption('A')">🚐 Option A · Bulli</button>
+    <button class="opt-btn"        id="btn-b" onclick="switchOption('B')">🚂 Option B · Zug</button>
+  </div>
 </div>
 
-<!-- Compass reset -->
-<div id="compass" onclick="resetCamera()" title="Karte zurücksetzen">🧭</div>
+<div id="compass" onclick="resetCamera()">🧭</div>
 
-<!-- Progress dots -->
 <div id="dots">
   <div class="dot on" data-i="0"></div>
   <div class="dot"    data-i="1"></div>
@@ -410,218 +360,320 @@
   <div class="dot"    data-i="3"></div>
 </div>
 
-<!-- Bottom sheet -->
 <div id="sheet" class="collapsed">
-  <div class="handle-zone" id="handle-zone">
-    <div class="handle"></div>
-  </div>
+  <div class="handle-zone" id="handle-zone"><div class="handle"></div></div>
   <div class="sheet-top" onclick="toggleSheet()">
-    <div class="sheet-title">Etappen</div>
-    <div class="sheet-meta">4 Tage · Bulli</div>
+    <div class="sheet-title" id="sheet-title">Etappen</div>
+    <div class="sheet-meta" id="sheet-meta">4 Tage · Bulli</div>
   </div>
   <div id="cards"></div>
 </div>
 
 <script>
 // ════════════════════════════════════════════════
-//  DATA
+//  DATA — OPTION A (Bulli)
 // ════════════════════════════════════════════════
-const WPS = [
+const WPS_A = [
   {
-    id:       0,
-    name:     'Baiersbronn',
-    sub:      'Natur-Camp Tannenfels',
-    day:      'Mi 13.05.',
-    badge:    'Tag 1',
-    emoji:    '🌲',
-    lng:      8.3740,
-    lat:      48.5079,
-    zoom:     13.5,
-    pitch:    62,
-    bearing:  -25,
-    color:    '#0a84ff',
+    id: 0, name: 'Baiersbronn', sub: 'Natur-Camp Tannenfels',
+    day: 'Mi 13.05.', badge: 'Tag 1', emoji: '🌲',
+    lng: 8.3740, lat: 48.5079,
+    zoom: 13.5, pitch: 62, bearing: -25,
     stats: [
-      { icon: '🚗', val: '~480 km',   lbl: 'Anreise' },
-      { icon: '🏕️', val: 'Tannenfels', lbl: 'Camp'   },
+      { icon: '🚐', val: '~480 km', lbl: 'Anreise' },
+      { icon: '🏕️', val: 'Tannenfels', lbl: 'Camp' },
     ],
   },
   {
-    id:       1,
-    name:     'Ruhestein',
-    sub:      'Wildseeblick · Nationalpark',
-    day:      'Do 14.05.',
-    badge:    'Tag 2',
-    emoji:    '🦌',
-    lng:      8.2541,
-    lat:      48.5544,
-    zoom:     14,
-    pitch:    68,
-    bearing:  18,
-    color:    '#30d158',
+    id: 1, name: 'Ruhestein', sub: 'Wildseeblick · Nationalpark',
+    day: 'Do 14.05.', badge: 'Tag 2', emoji: '🦌',
+    lng: 8.2541, lat: 48.5544,
+    zoom: 14, pitch: 68, bearing: 18,
     stats: [
-      { icon: '🥾', val: '~10 km',  lbl: 'Wanderung' },
-      { icon: '⏱️', val: '3–4 h',   lbl: 'Dauer'     },
+      { icon: '🥾', val: '~10 km', lbl: 'Wanderung' },
+      { icon: '⏱️', val: '3–4 h',  lbl: 'Dauer' },
     ],
   },
   {
-    id:       2,
-    name:     'Hinterzarten',
-    sub:      'Camping Bankenhof · Titisee',
-    day:      'Fr 15.05.',
-    badge:    'Tag 3',
-    emoji:    '🏔️',
-    lng:      8.1186,
-    lat:      47.9065,
-    zoom:     13,
-    pitch:    58,
-    bearing:  8,
-    color:    '#ff9f0a',
+    id: 2, name: 'Hinterzarten', sub: 'Camping Bankenhof · Titisee',
+    day: 'Fr 15.05.', badge: 'Tag 3', emoji: '🏔️',
+    lng: 8.1186, lat: 47.9065,
+    zoom: 13, pitch: 58, bearing: 8,
     stats: [
-      { icon: '🥾', val: '~6 km',    lbl: 'Titisee'  },
-      { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp'    },
+      { icon: '🥾', val: '~6 km', lbl: 'Titisee' },
+      { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp' },
     ],
   },
   {
-    id:       3,
-    name:     'Feldberg',
-    sub:      'Gipfel 1.493 m · Alpenblick',
-    day:      'Sa 16.05.',
-    badge:    'Tag 4',
-    emoji:    '⛰️',
-    lng:      8.0047,
-    lat:      47.8742,
-    zoom:     14.5,
-    pitch:    72,
-    bearing:  -48,
-    color:    '#ff453a',
+    id: 3, name: 'Feldberg', sub: 'Gipfel 1.493 m · Alpenblick',
+    day: 'Sa 16.05.', badge: 'Tag 4', emoji: '⛰️',
+    lng: 8.0047, lat: 47.8742,
+    zoom: 14.5, pitch: 72, bearing: -48,
     stats: [
-      { icon: '⛰️', val: '1.493 m',  lbl: 'Höhe'   },
-      { icon: '🥾', val: '~2 h',     lbl: 'Rundweg' },
+      { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
+      { icon: '🥾', val: '~2 h',    lbl: 'Rundweg' },
     ],
   },
 ];
 
-const ROUTE_COORDS = WPS.map(w => [w.lng, w.lat]);
+// ════════════════════════════════════════════════
+//  DATA — OPTION B (Zug + Zelt)
+// ════════════════════════════════════════════════
+const WPS_B = [
+  {
+    id: 0, name: 'Anreise', sub: 'Hamm → Köln → Freiburg → Titisee',
+    day: 'Mi 13.05.', badge: 'Tag 1', emoji: '🚂', isTrain: true,
+    lng: 8.1430, lat: 47.8970,   // Titisee arrival
+    zoom: 11, pitch: 48, bearing: 10,
+    travel: 'Hamm Hbf → Köln → Freiburg → Titisee  ·  ~5,5 h  ·  2 Umstiege',
+    stats: [
+      { icon: '🚂', val: '~5,5 h', lbl: 'Fahrtzeit' },
+      { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp' },
+    ],
+  },
+  {
+    id: 1, name: 'Feldberg', sub: 'Gipfelrunde via KONUS-Bus',
+    day: 'Do 14.05.', badge: 'Tag 2', emoji: '⛰️', isTrain: true,
+    lng: 8.0047, lat: 47.8742,
+    zoom: 14.5, pitch: 72, bearing: -40,
+    travel: 'KONUS-Bus ab Hinterzarten  ·  kostenlos mit Gästekarte',
+    stats: [
+      { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
+      { icon: '🥾', val: '~12 km',  lbl: 'Gipfelrunde' },
+    ],
+  },
+  {
+    id: 2, name: 'Schluchsee', sub: 'Dreiseenbahn · Schwimmen',
+    day: 'Fr 15.05.', badge: 'Tag 3', emoji: '🏊', isTrain: true,
+    lng: 8.0090, lat: 47.8195,
+    zoom: 13.5, pitch: 60, bearing: 25,
+    travel: 'Dreiseenbahn ab Hinterzarten  ·  ~20 min',
+    stats: [
+      { icon: '🚞', val: 'Dreiseenbahn', lbl: 'Anreise' },
+      { icon: '🏊', val: 'Schwimmen',    lbl: 'Schluchsee' },
+    ],
+  },
+  {
+    id: 3, name: 'Titisee-Rundweg', sub: 'Abschluss · Rückfahrt',
+    day: 'Sa 16.05.', badge: 'Tag 4', emoji: '🌊', isTrain: true,
+    lng: 8.1500, lat: 47.8980,
+    zoom: 14, pitch: 55, bearing: -15,
+    travel: 'Rückfahrt: Titisee → Freiburg → Köln → Hamm  ·  ~5,5 h',
+    stats: [
+      { icon: '🥾', val: '~6 km',   lbl: 'Rundweg' },
+      { icon: '🚂', val: '~5,5 h',  lbl: 'Rückfahrt' },
+    ],
+  },
+];
+
+// Zugstrecke: Hamm → Köln → Mannheim → Freiburg → Titisee
+const TRAIN_ROUTE = [
+  [7.823, 51.680],   // Hamm Hbf
+  [7.459, 51.518],   // Dortmund Hbf
+  [6.959, 50.943],   // Köln Hbf
+  [8.469, 49.480],   // Mannheim Hbf
+  [8.403, 49.009],   // Karlsruhe Hbf
+  [7.776, 48.481],   // Offenburg
+  [7.842, 47.997],   // Freiburg Hbf
+  [7.939, 47.975],   // Himmelreich
+  [8.143, 47.897],   // Titisee-Neustadt
+];
+
+// Zwischenstopps (kleine Punkte auf der Strecke)
+const TRAIN_STOPS = [
+  { name: 'Hamm Hbf',      lng: 7.823,  lat: 51.680 },
+  { name: 'Köln Hbf',      lng: 6.959,  lat: 50.943 },
+  { name: 'Mannheim Hbf',  lng: 8.469,  lat: 49.480 },
+  { name: 'Freiburg Hbf',  lng: 7.842,  lat: 47.997 },
+  { name: 'Titisee',       lng: 8.143,  lat: 47.897 },
+];
 
 // ════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════
-let map, markers = [];
+let map, markers = [], stopMarkers = [];
+let currentOption  = 'A';
 let activeIdx      = 0;
 let sheetOpen      = false;
 let isFlyingRoute  = false;
 let flyTimer       = null;
+let introSheetTimer = null;
 let userScrolling  = false;
 let scrollDebounce = null;
+
+function activeWps() { return currentOption === 'A' ? WPS_A : WPS_B; }
 
 // ════════════════════════════════════════════════
 //  MAP INIT
 // ════════════════════════════════════════════════
 function initMap() {
   map = new maplibregl.Map({
-    container:        'map',
-    style:            'https://tiles.openfreemap.org/styles/liberty',
-    center:           [8.19, 48.23],
-    zoom:             8.2,
-    pitch:            45,
-    bearing:          -8,
-    antialias:        true,
+    container: 'map',
+    style:     'https://tiles.openfreemap.org/styles/liberty',
+    center:    [8.19, 48.23],
+    zoom:      8.2, pitch: 45, bearing: -8,
+    antialias: true,
     attributionControl: { compact: true },
-    maxPitch:         80,
+    maxPitch: 80,
   });
-
   map.on('load', onMapLoad);
-  map.on('error', onMapError);
+  map.on('error', () => hideLoader());
 }
 
 function onMapLoad() {
-  // ── Terrain DEM (AWS open-data terrarium, no key) ──
+  // Terrain — virtual-hosted-style URL (bessere CORS-Zuverlässigkeit)
   map.addSource('terrain-dem', {
-    type:     'raster-dem',
-    tiles:    ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
-    tileSize: 256,
-    encoding: 'terrarium',
-    maxzoom:  14,
+    type: 'raster-dem',
+    tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
+    tileSize: 256, encoding: 'terrarium', maxzoom: 15,
   });
   map.setTerrain({ source: 'terrain-dem', exaggeration: 2.0 });
 
-  // ── Atmospheric sky ────────────────────────────
+  // Sky
   map.addLayer({
-    id:   'sky',
-    type: 'sky',
-    paint: {
-      'sky-type':                    'atmosphere',
-      'sky-atmosphere-sun':          [0, 85],
-      'sky-atmosphere-sun-intensity': 12,
-    },
+    id: 'sky', type: 'sky',
+    paint: { 'sky-type': 'atmosphere', 'sky-atmosphere-sun': [0, 85], 'sky-atmosphere-sun-intensity': 12 },
   });
 
-  // ── Route: glow + line ─────────────────────────
-  map.addSource('route', {
+  // ── Option A: Bulli route ──────────────────────
+  map.addSource('route-a', {
+    type: 'geojson',
+    data: { type: 'Feature', geometry: { type: 'LineString', coordinates: WPS_A.map(w => [w.lng, w.lat]) } },
+  });
+  map.addLayer({ id: 'route-a-glow', type: 'line', source: 'route-a',
+    paint: { 'line-color': '#0a84ff', 'line-width': 10, 'line-opacity': 0.18, 'line-blur': 6 } });
+  map.addLayer({ id: 'route-a-line', type: 'line', source: 'route-a',
+    paint: { 'line-color': '#0a84ff', 'line-width': 3, 'line-opacity': 0.9, 'line-dasharray': [3,2] },
+    layout: { 'line-cap': 'round', 'line-join': 'round' } });
+
+  // ── Option B: Zugstrecke ───────────────────────
+  map.addSource('route-b', {
+    type: 'geojson',
+    data: { type: 'Feature', geometry: { type: 'LineString', coordinates: TRAIN_ROUTE } },
+  });
+  map.addLayer({ id: 'route-b-glow', type: 'line', source: 'route-b',
+    paint: { 'line-color': '#bf5af2', 'line-width': 10, 'line-opacity': 0.15, 'line-blur': 6 },
+    layout: { visibility: 'none' } });
+  map.addLayer({ id: 'route-b-line', type: 'line', source: 'route-b',
+    paint: { 'line-color': '#bf5af2', 'line-width': 3, 'line-opacity': 0.9, 'line-dasharray': [2, 3] },
+    layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
+
+  // Option B: lokale Tagesrouten (Hinterzarten ↔ Feldberg, ↔ Schluchsee)
+  const localB = [
+    [[8.1186, 47.9065], [8.0047, 47.8742]],   // Hinterzarten → Feldberg
+    [[8.1186, 47.9065], [8.0090, 47.8195]],   // Hinterzarten → Schluchsee
+    [[8.1186, 47.9065], [8.1500, 47.8980]],   // Hinterzarten → Titisee
+  ];
+  map.addSource('route-b-local', {
     type: 'geojson',
     data: {
-      type: 'Feature',
-      geometry: { type: 'LineString', coordinates: ROUTE_COORDS },
+      type: 'FeatureCollection',
+      features: localB.map(coords => ({
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: coords },
+      })),
     },
   });
-  map.addLayer({
-    id: 'route-glow', type: 'line', source: 'route',
-    paint: { 'line-color': '#0a84ff', 'line-width': 10, 'line-opacity': 0.18, 'line-blur': 6 },
-  });
-  map.addLayer({
-    id: 'route-line', type: 'line', source: 'route',
-    paint: {
-      'line-color':     '#0a84ff',
-      'line-width':     3,
-      'line-opacity':   0.85,
-      'line-dasharray': [3, 2],
-    },
-    layout: { 'line-cap': 'round', 'line-join': 'round' },
-  });
+  map.addLayer({ id: 'route-b-local-line', type: 'line', source: 'route-b-local',
+    paint: { 'line-color': '#bf5af2', 'line-width': 2, 'line-opacity': 0.6, 'line-dasharray': [1,3] },
+    layout: { 'line-cap': 'round', visibility: 'none' } });
 
   // ── Waypoint markers ───────────────────────────
-  WPS.forEach((wp, i) => {
-    const el = document.createElement('div');
-    el.className = 'wp-pin' + (i === 0 ? ' active' : '');
-    el.textContent = i + 1;
-    el.style.setProperty('--mc', wp.color);
-    if (i === 0) el.style.background = wp.color;
-    el.addEventListener('click', () => flyTo(i));
+  buildMarkers();
 
-    const m = new maplibregl.Marker({ element: el, anchor: 'center' })
-      .setLngLat([wp.lng, wp.lat])
-      .addTo(map);
-    markers.push({ marker: m, el });
-  });
+  // ── Train stop dots ───────────────────────────
+  buildTrainStops();
 
-  // ── Build cards ────────────────────────────────
+  // ── Cards ──────────────────────────────────────
   buildCards();
 
-  // ── Initial cinematic fly-in ───────────────────
+  // ── Scroll-Listener einmalig anhängen (Bug 1) ─
+  document.getElementById('cards')
+    .addEventListener('scroll', onCardsScroll, { passive: true });
+
+  // ── Intro fly-in ──────────────────────────────
   hideLoader();
   setTimeout(() => {
-    map.flyTo({
-      center:   [8.19, 48.22],
-      zoom:     9.0,
-      pitch:    52,
-      bearing:  -10,
-      duration: 2800,
-      essential: true,
-    });
-    // Show sheet after overview settle
-    setTimeout(() => openSheet(), 3400);
+    map.flyTo({ center: [8.19, 48.22], zoom: 9.0, pitch: 52, bearing: -10, duration: 2800, essential: true });
+    introSheetTimer = setTimeout(() => {
+      introSheetTimer = null;
+      if (!isFlyingRoute) openSheet();
+    }, 3400);
   }, 300);
 }
 
-function onMapError(e) {
-  console.warn('Map error:', e);
-  hideLoader();
+// ════════════════════════════════════════════════
+//  MARKERS
+// ════════════════════════════════════════════════
+function buildMarkers() {
+  markers.forEach(({ marker }) => marker.remove());
+  markers = [];
+
+  activeWps().forEach((wp, i) => {
+    const el = document.createElement('div');
+    el.className = 'wp-pin' + (i === activeIdx ? ' active' : '') + (wp.isTrain ? ' train-pin' : '');
+    el.textContent = i + 1;
+    el.addEventListener('click', () => flyTo(i));
+    const m = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([wp.lng, wp.lat]).addTo(map);
+    markers.push({ marker: m, el });
+  });
 }
 
-function hideLoader() {
-  const l = document.getElementById('loader');
-  l.classList.add('fade');
-  setTimeout(() => l.remove(), 700);
+function buildTrainStops() {
+  stopMarkers.forEach(m => m.remove());
+  stopMarkers = [];
+  if (currentOption !== 'B') return;
+
+  TRAIN_STOPS.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'train-stop';
+    el.title = s.name;
+    const m = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([s.lng, s.lat]).addTo(map);
+    stopMarkers.push(m);
+  });
+}
+
+// ════════════════════════════════════════════════
+//  OPTION SWITCH
+// ════════════════════════════════════════════════
+function switchOption(opt) {
+  if (currentOption === opt) return;
+  if (!map || !map.isStyleLoaded()) return;
+  currentOption = opt;
+  activeIdx = 0;
+
+  // Toggle button states
+  document.getElementById('btn-a').classList.toggle('active', opt === 'A');
+  document.getElementById('btn-b').classList.toggle('active', opt === 'B');
+
+  // Map layer visibility
+  const showA = opt === 'A' ? 'visible' : 'none';
+  const showB = opt === 'B' ? 'visible' : 'none';
+  ['route-a-glow', 'route-a-line'].forEach(id => map.setLayoutProperty(id, 'visibility', showA));
+  ['route-b-glow', 'route-b-line', 'route-b-local-line'].forEach(id => map.setLayoutProperty(id, 'visibility', showB));
+
+  // Accent color CSS
+  document.documentElement.style.setProperty('--accent', opt === 'A' ? 'var(--blue)' : 'var(--purple)');
+
+  // Update sheet meta
+  document.getElementById('sheet-meta').textContent = opt === 'A' ? '4 Tage · Bulli' : '4 Tage · Zug + Zelt';
+
+  // Rebuild markers + stops + cards
+  buildMarkers();
+  buildTrainStops();
+  buildCards();
+  setActive(0);
+
+  // Camera: zoom out to show full train route for B
+  if (opt === 'B') {
+    map.flyTo({ center: [7.8, 49.8], zoom: 5.5, pitch: 35, bearing: 0, duration: 2200, essential: true });
+    showToast('Option B: Zug + Zelt 🚂');
+  } else {
+    map.flyTo({ center: [8.19, 48.22], zoom: 9.0, pitch: 52, bearing: -10, duration: 2000, essential: true });
+    showToast('Option A: Bulli 🚐');
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -630,13 +682,15 @@ function hideLoader() {
 function buildCards() {
   const wrap = document.getElementById('cards');
   wrap.innerHTML = '';
-  WPS.forEach((wp, i) => {
+  activeWps().forEach((wp, i) => {
     const card = document.createElement('div');
-    card.className = 'card' + (i === 0 ? ' active' : '');
+    card.className = 'card' + (i === activeIdx ? ' active' : '');
+    const badgeClass = wp.isTrain ? 'card-badge train' : 'card-badge';
     card.innerHTML = `
-      <div class="card-badge">${wp.emoji} ${wp.badge} · ${wp.day}</div>
+      <div class="${badgeClass}">${wp.emoji} ${wp.badge} · ${wp.day}</div>
       <div class="card-name">${wp.name}</div>
       <div class="card-sub">${wp.sub}</div>
+      ${wp.travel ? `<div class="travel-row">🚆 <strong>${wp.travel.split('·')[0].trim()}</strong>${wp.travel.includes('·') ? ' · ' + wp.travel.split('·').slice(1).join('·').trim() : ''}</div>` : ''}
       <div class="card-stats">
         ${wp.stats.map(s => `
           <div class="stat">
@@ -650,21 +704,18 @@ function buildCards() {
     card.addEventListener('click', () => flyTo(i));
     wrap.appendChild(card);
   });
-
-  // Sync scroll → active waypoint
-  wrap.addEventListener('scroll', onCardsScroll, { passive: true });
 }
 
 function onCardsScroll() {
-  if (userScrolling) return; // don't fight programmatic scroll
+  if (userScrolling) return;
   clearTimeout(scrollDebounce);
   scrollDebounce = setTimeout(() => {
-    const wrap    = document.getElementById('cards');
-    const cardW   = (wrap.firstElementChild?.offsetWidth ?? 0) + 12;
-    const idx     = Math.round(wrap.scrollLeft / cardW);
-    if (idx >= 0 && idx < WPS.length && idx !== activeIdx) {
+    const wrap  = document.getElementById('cards');
+    const cardW = (wrap.firstElementChild?.offsetWidth ?? 0) + 12;
+    const idx   = Math.round(wrap.scrollLeft / cardW);
+    if (idx >= 0 && idx < activeWps().length && idx !== activeIdx) {
       setActive(idx);
-      flyTo(idx, true); // fromScroll=true, skip card scroll
+      flyTo(idx, true);
     }
   }, 120);
 }
@@ -674,7 +725,15 @@ function scrollCardIntoView(idx) {
   const cardW = (wrap.firstElementChild?.offsetWidth ?? 0) + 12;
   userScrolling = true;
   wrap.scrollTo({ left: idx * cardW, behavior: 'smooth' });
-  setTimeout(() => { userScrolling = false; }, 600);
+  // rAF-basiert: userScrolling erst freigeben wenn Scroll wirklich still steht
+  let last = wrap.scrollLeft, stableFrames = 0;
+  const tick = () => {
+    if (Math.abs(wrap.scrollLeft - last) < 0.5) {
+      if (++stableFrames > 6) { userScrolling = false; return; }
+    } else { stableFrames = 0; last = wrap.scrollLeft; }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 // ════════════════════════════════════════════════
@@ -682,21 +741,12 @@ function scrollCardIntoView(idx) {
 // ════════════════════════════════════════════════
 function setActive(idx) {
   activeIdx = idx;
-
-  // cards
-  document.querySelectorAll('.card')
-    .forEach((c, i) => c.classList.toggle('active', i === idx));
-
-  // markers
+  document.querySelectorAll('.card').forEach((c, i) => c.classList.toggle('active', i === idx));
   markers.forEach(({ el }, i) => {
     el.classList.toggle('active', i === idx);
-    el.style.background = i === idx ? WPS[i].color : WPS[i].color;
-    el.style.transform  = i === idx ? 'scale(1.18)' : '';
+    el.style.transform = i === idx ? 'scale(1.18)' : '';
   });
-
-  // dots
-  document.querySelectorAll('.dot')
-    .forEach((d, i) => d.classList.toggle('on', i === idx));
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === idx));
 }
 
 // ════════════════════════════════════════════════
@@ -704,58 +754,44 @@ function setActive(idx) {
 // ════════════════════════════════════════════════
 function flyTo(idx, fromScroll = false) {
   if (!map) return;
-  const wp = WPS[idx];
+  const wp = activeWps()[idx];
   setActive(idx);
   if (!fromScroll) scrollCardIntoView(idx);
-
   map.flyTo({
-    center:    [wp.lng, wp.lat],
-    zoom:      wp.zoom,
-    pitch:     wp.pitch,
-    bearing:   wp.bearing,
-    duration:  2400,
-    essential: true,
-    curve:     1.35,
-    speed:     0.75,
+    center: [wp.lng, wp.lat], zoom: wp.zoom, pitch: wp.pitch, bearing: wp.bearing,
+    duration: 2400, essential: true, curve: 1.35, speed: 0.75,
   });
 }
 
 function resetCamera() {
   if (!map) return;
-  map.flyTo({
-    center:    [8.19, 48.22],
-    zoom:      9.0,
-    pitch:     48,
-    bearing:   -10,
-    duration:  1800,
-    essential: true,
-  });
+  if (currentOption === 'B') {
+    map.flyTo({ center: [7.8, 49.8], zoom: 5.5, pitch: 35, bearing: 0, duration: 1800, essential: true });
+  } else {
+    map.flyTo({ center: [8.19, 48.22], zoom: 9.0, pitch: 48, bearing: -10, duration: 1800, essential: true });
+  }
 }
 
 // ════════════════════════════════════════════════
-//  FLY ROUTE AUTO-TOUR
+//  FLY ROUTE
 // ════════════════════════════════════════════════
-function toggleFlyRoute() {
-  isFlyingRoute ? stopFlyRoute() : startFlyRoute();
-}
+function toggleFlyRoute() { isFlyingRoute ? stopFlyRoute() : startFlyRoute(); }
 
 function startFlyRoute() {
+  if (introSheetTimer) { clearTimeout(introSheetTimer); introSheetTimer = null; }
   isFlyingRoute = true;
   document.getElementById('fly-btn').classList.add('flying');
   document.getElementById('fly-icon').textContent  = '■';
   document.getElementById('fly-label').textContent = 'Stop';
   document.getElementById('dots').classList.add('hidden');
-
-  // Close sheet for unobstructed view
   closeSheet();
   showToast('Automatischer Kamera-Flug 🎬');
 
   let step = 0;
   function next() {
     if (!isFlyingRoute) return;
-    if (step >= WPS.length) { stopFlyRoute(); return; }
-    flyTo(step);
-    step++;
+    if (step >= activeWps().length) { stopFlyRoute(); return; }
+    flyTo(step); step++;
     flyTimer = setTimeout(next, 4200);
   }
   next();
@@ -774,34 +810,28 @@ function stopFlyRoute() {
 // ════════════════════════════════════════════════
 //  SHEET
 // ════════════════════════════════════════════════
-function openSheet()  { sheetOpen = true;  document.getElementById('sheet').classList.remove('collapsed'); }
-function closeSheet() { sheetOpen = false; document.getElementById('sheet').classList.add('collapsed'); }
+function openSheet()   { sheetOpen = true;  document.getElementById('sheet').classList.remove('collapsed'); }
+function closeSheet()  { sheetOpen = false; document.getElementById('sheet').classList.add('collapsed'); }
 function toggleSheet() { sheetOpen ? closeSheet() : openSheet(); }
 
-// Touch-drag for sheet ──────────────────────────
 (function setupDrag() {
   const sheet = document.getElementById('sheet');
   let startY = 0, startOpen = false, dragging = false;
-
   sheet.addEventListener('touchstart', e => {
-    // Only initiate drag from handle zone or sheet-top
-    const target = e.target;
-    const zone   = document.getElementById('handle-zone');
-    const top    = document.querySelector('.sheet-top');
-    if (!zone.contains(target) && !top.contains(target)) return;
-    startY    = e.touches[0].clientY;
-    startOpen = sheetOpen;
-    dragging  = true;
-    sheet.style.transition = 'none';
+    const t = e.target;
+    if (!document.getElementById('handle-zone').contains(t) && !document.querySelector('.sheet-top').contains(t)) return;
+    startY = e.touches[0].clientY; startOpen = sheetOpen; dragging = true;
   }, { passive: true });
-
   sheet.addEventListener('touchend', e => {
     if (!dragging) return;
     dragging = false;
-    sheet.style.transition = '';
     const dy = e.changedTouches[0].clientY - startY;
-    if (dy >  55 && startOpen)  closeSheet();
+    if (dy > 55 && startOpen)   closeSheet();
     if (dy < -55 && !startOpen) openSheet();
+  }, { passive: true });
+  sheet.addEventListener('touchcancel', () => {
+    if (!dragging) return;
+    dragging = false;
   }, { passive: true });
 })();
 
@@ -814,81 +844,36 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
 // ════════════════════════════════════════════════
-//  PWA MANIFEST (blob — no separate file needed)
+//  LOADING
 // ════════════════════════════════════════════════
-(function injectManifest() {
-  const manifest = {
-    name:             'Schwarzwald Route',
-    short_name:       'Schwarzwald',
-    description:      'Schwarzwald Trip 13.–16. Mai 2026 · Baiersbronn → Feldberg',
-    start_url:        './',
-    display:          'standalone',
-    background_color: '#000000',
-    theme_color:      '#000000',
-    orientation:      'portrait-primary',
-    icons: [{
-      src:   "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23000'/><text y='.9em' font-size='76' x='12'>🌲</text></svg>",
-      sizes: '512x512',
-      type:  'image/svg+xml',
-      purpose: 'any maskable',
-    }],
+function hideLoader() {
+  const l = document.getElementById('loader');
+  if (!l || l.classList.contains('fade')) return;
+  l.classList.add('fade');
+  setTimeout(() => l.remove(), 700);
+}
+
+// ════════════════════════════════════════════════
+//  PWA MANIFEST
+// ════════════════════════════════════════════════
+(function() {
+  const base = location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '');
+  const m = {
+    name: 'Schwarzwald Route', short_name: 'Schwarzwald',
+    start_url: base, scope: base, id: base,
+    display: 'standalone',
+    background_color: '#000', theme_color: '#000',
+    icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23000'/><text y='.9em' font-size='76' x='12'>🌲</text></svg>", sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }],
   };
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-  const link = document.createElement('link');
-  link.rel   = 'manifest';
-  link.href  = URL.createObjectURL(blob);
-  document.head.appendChild(link);
+  const l = document.createElement('link');
+  l.rel = 'manifest';
+  l.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/json' }));
+  document.head.appendChild(l);
 })();
-
-// ════════════════════════════════════════════════
-//  SERVICE WORKER (inline blob)
-// ════════════════════════════════════════════════
-if ('serviceWorker' in navigator) {
-  const CACHE = 'schwarzwald-v1';
-  const SW = `
-const CACHE = '${CACHE}';
-self.addEventListener('install', e => {
-  self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
-});
-self.addEventListener('activate', e => {
-  self.clients.claim();
-  e.waitUntil(
-    caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
-  );
-});
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  // Cache-first for tile requests (offline maps)
-  const isTile = /\/(tiles|terrarium|terrain)\//i.test(e.request.url)
-               || e.request.url.includes('.mvt')
-               || e.request.url.includes('.png?');
-  if (isTile) {
-    e.respondWith(
-      caches.open(CACHE).then(cache =>
-        cache.match(e.request).then(hit => {
-          const net = fetch(e.request).then(res => { cache.put(e.request, res.clone()); return res; });
-          return hit || net;
-        })
-      )
-    );
-    return;
-  }
-  // Network-first for app shell
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
-  );
-});
-  `;
-  try {
-    const blob = new Blob([SW], { type: 'application/javascript' });
-    navigator.serviceWorker.register(URL.createObjectURL(blob));
-  } catch (_) {}
-}
 
 // ════════════════════════════════════════════════
 //  BOOT
