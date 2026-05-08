@@ -265,6 +265,32 @@
     }
     .travel-row strong { color: var(--purple); }
 
+    /* Dennis avatar + speech bubble */
+    .dennis-row {
+      display: flex; align-items: flex-end; gap: 8px;
+      margin-top: 6px;
+    }
+    .dennis-avatar {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .dennis-bubble {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 0.5px solid rgba(255,255,255,0.13);
+      border-radius: 12px 12px 12px 3px;
+      padding: 7px 10px;
+      font-size: 12px; color: rgba(255,255,255,0.82);
+      line-height: 1.45;
+      min-height: 36px;
+    }
+    @keyframes dennis-breathe {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-1px); }
+    }
+    .dennis-avatar { animation: dennis-breathe 3s ease-in-out infinite; }
+
     /* Waypoint markers */
     .wp-pin {
       width: 36px; height: 36px; border-radius: 50%;
@@ -388,6 +414,7 @@ const WPS_A = [
       { icon: '🚐', val: '~320 km', lbl: 'von Hamm' },
       { icon: '🌙', val: 'Pfalz', lbl: 'Übernachtung' },
     ],
+    speech: 'Kurze Nacht in der Pfalz, dann weiter Richtung Schwarzwald. Kein Stress, wir kommen an.',
   },
   {
     id: 1, name: 'Ruhestein', sub: 'Wildseeblick · Nationalpark',
@@ -399,6 +426,7 @@ const WPS_A = [
       { icon: '🥾', val: '~10 km', lbl: 'Wanderung' },
       { icon: '⏱️', val: '3–4 h',  lbl: 'Dauer' },
     ],
+    speech: 'Echter Urwald. Kein Handynetz, kein Bullshit — einfach Wald und der Wildsee.',
   },
   {
     id: 2, name: 'Feldberg', sub: 'Gipfel 1.493 m · Alpenblick',
@@ -410,6 +438,7 @@ const WPS_A = [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~2 h',    lbl: 'Rundweg' },
     ],
+    speech: 'Höchster Berg hier. Wenn\'s klar ist, sieht man die Alpen. Wenn nicht — trotzdem geil.',
   },
   {
     id: 3, name: 'Triberg', sub: 'Wasserfälle 163 m · Heimweg',
@@ -421,6 +450,7 @@ const WPS_A = [
       { icon: '💧', val: '163 m',  lbl: 'Fallhöhe' },
       { icon: '⏱️', val: '~2 h',   lbl: 'Spaziergang' },
     ],
+    speech: 'Letzter Tag. Größte Wasserfälle Deutschlands, dann heim. Hat sich gelohnt.',
   },
 ];
 
@@ -439,6 +469,7 @@ const WPS_B = [
       { icon: '🚂', val: '~4,5 h', lbl: 'Fahrtzeit' },
       { icon: '🏕️', val: 'Bankenhof', lbl: 'Camp' },
     ],
+    speech: '4,5 Stunden Zug, dann Titisee. Camp aufbauen, dann Feierabend.',
   },
   {
     id: 1, name: 'Feldberg', sub: 'Gipfelrunde via KONUS-Bus',
@@ -451,6 +482,7 @@ const WPS_B = [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~12 km',  lbl: 'Gipfelrunde' },
     ],
+    speech: 'Kostenloser Bus mit der Gästekarte. 12 km Gipfelrunde — lohnt sich.',
   },
   {
     id: 2, name: 'Schluchsee', sub: 'Dreiseenbahn · Schwimmen',
@@ -463,6 +495,7 @@ const WPS_B = [
       { icon: '🚞', val: 'Dreiseenbahn', lbl: 'Anreise' },
       { icon: '🏊', val: 'Schwimmen',    lbl: 'Schluchsee' },
     ],
+    speech: 'Dreiseenbahn hin, dann schwimmen. So simpel kann ein Tag sein.',
   },
   {
     id: 3, name: 'Triberg', sub: 'Wasserfälle · Schwarzwaldbahn heimwärts',
@@ -475,6 +508,7 @@ const WPS_B = [
       { icon: '💧', val: '163 m',  lbl: 'Wasserfälle' },
       { icon: '🚂', val: '~6 h',   lbl: 'Heimfahrt' },
     ],
+    speech: 'Wasserfälle noch mitnehmen, dann Schwarzwaldbahn nach Hause.',
   },
 ];
 
@@ -514,6 +548,12 @@ let introSheetTimer = null;
 let userScrolling  = false;
 let scrollDebounce = null;
 let scrollRAF      = null;
+let speechTimer    = null;
+let talkTimer      = null;
+let firstSpeechTimer = null;
+
+const MOUTH_C = 'M44 75 Q50 79 56 75';
+const MOUTH_O = 'M43 73 Q50 82 57 73 Q50 76 43 73';
 
 function activeWps() { return currentOption === 'A' ? WPS_A : WPS_B; }
 
@@ -594,6 +634,10 @@ function onMapLoad() {
 
   // ── Cards ──────────────────────────────────────
   buildCards();
+  firstSpeechTimer = setTimeout(() => {
+    firstSpeechTimer = null;
+    triggerSpeech(0);
+  }, 3600);
 
   // ── Scroll-Listener einmalig anhängen (Bug 1) ─
   document.getElementById('cards')
@@ -709,6 +753,32 @@ function buildCards() {
           </div>
         `).join('')}
       </div>
+      ${wp.speech ? `
+      <div class="dennis-row">
+        <svg class="dennis-avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="100" fill="#111"/>
+          <path d="M24 44 Q22 22 32 12 Q42 3 50 2 Q58 3 68 12 Q78 22 76 44 Q70 26 62 18 Q56 12 50 11 Q44 12 38 18 Q30 26 24 44Z" fill="#150e06"/>
+          <path d="M26 46 Q25 54 26 62 Q29 76 36 84 Q42 91 50 92 Q58 91 64 84 Q71 76 74 62 Q75 54 74 46 Q72 38 64 35 Q58 32 50 32 Q42 32 36 35 Q28 38 26 46Z" fill="#f0c890"/>
+          <ellipse cx="22" cy="60" rx="4" ry="6" fill="#e8b478"/>
+          <ellipse cx="78" cy="60" rx="4" ry="6" fill="#e8b478"/>
+          <rect x="79" y="55" rx="1.5" ry="1.5" width="4" height="6" fill="#f0f0f0"/>
+          <rect x="79.5" y="61" rx="1" ry="1" width="3" height="6" fill="#e8e8e8"/>
+          <path d="M31 52 Q39 47 47 50" fill="none" stroke="#120c05" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M53 50 Q61 47 69 52" fill="none" stroke="#120c05" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M30 57 Q38 50 46 54" fill="none" stroke="#0a0a10" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M54 54 Q62 50 70 57" fill="none" stroke="#0a0a10" stroke-width="1.8" stroke-linecap="round"/>
+          <ellipse cx="39" cy="59" rx="7.5" ry="7" fill="white"/>
+          <ellipse cx="61" cy="59" rx="7.5" ry="7" fill="white"/>
+          <circle cx="39" cy="59" r="5" fill="#4e7890"/>
+          <circle cx="61" cy="59" r="5" fill="#4e7890"/>
+          <circle cx="39" cy="59" r="3" fill="#0a0a10"/>
+          <circle cx="61" cy="59" r="3" fill="#0a0a10"/>
+          <circle cx="41" cy="57" r="1.5" fill="white"/>
+          <circle cx="63" cy="57" r="1.5" fill="white"/>
+          <path d="M44 75 Q50 79 56 75" fill="none" id="mouth-${i}" stroke="#a06040" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="dennis-bubble" id="bubble-${i}"></div>
+      </div>` : ''}
     `;
     card.addEventListener('click', () => flyTo(i));
     wrap.appendChild(card);
@@ -749,6 +819,7 @@ function scrollCardIntoView(idx) {
 //  ACTIVE STATE
 // ════════════════════════════════════════════════
 function setActive(idx) {
+  if (firstSpeechTimer) { clearTimeout(firstSpeechTimer); firstSpeechTimer = null; }
   activeIdx = idx;
   document.querySelectorAll('.card').forEach((c, i) => c.classList.toggle('active', i === idx));
   markers.forEach(({ el }, i) => {
@@ -756,6 +827,40 @@ function setActive(idx) {
     el.style.transform = i === idx ? 'scale(1.18)' : '';
   });
   document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === idx));
+  triggerSpeech(idx);
+}
+
+function triggerSpeech(idx) {
+  if (speechTimer) clearTimeout(speechTimer);
+  if (talkTimer)   clearInterval(talkTimer);
+  document.querySelectorAll('.dennis-bubble').forEach(b => b.textContent = '');
+  document.querySelectorAll('[id^="mouth-"]').forEach(m => m.setAttribute('d', MOUTH_C));
+
+  const bubble = document.getElementById('bubble-' + idx);
+  const mouth  = document.getElementById('mouth-' + idx);
+  if (!bubble || !mouth) return;
+
+  const text = activeWps()[idx]?.speech || '';
+  if (!text) return;
+
+  let open = false;
+  talkTimer = setInterval(() => {
+    open = !open;
+    mouth.setAttribute('d', open ? MOUTH_O : MOUTH_C);
+  }, 105);
+
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      bubble.textContent += text[i++];
+      speechTimer = setTimeout(type, 34);
+    } else {
+      clearInterval(talkTimer);
+      talkTimer = null;
+      mouth.setAttribute('d', MOUTH_C);
+    }
+  }
+  type();
 }
 
 // ════════════════════════════════════════════════
