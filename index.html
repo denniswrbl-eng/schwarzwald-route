@@ -519,13 +519,9 @@ function initMap() {
 }
 
 function onMapLoad() {
-  // Terrain — virtual-hosted-style URL (bessere CORS-Zuverlässigkeit)
-  map.addSource('terrain-dem', {
-    type: 'raster-dem',
-    tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
-    tileSize: 256, encoding: 'terrarium', maxzoom: 15,
-  });
-  map.setTerrain({ source: 'terrain-dem', exaggeration: 1.2 });
+  // 3D-Terrain deaktiviert — terrarium-DEM-Tiles waren auf Mobile-GPU
+  // zu schwer und blockierten das Tile-Streaming. Map bleibt 2.5D
+  // (pitch/bearing funktionieren weiterhin).
 
   // (kein Sky-Layer — MapLibre 4.7.1 unterstützt type:'sky' nicht;
   // der dunkle bg-Background-Layer dient als Horizont/Sky-Ersatz)
