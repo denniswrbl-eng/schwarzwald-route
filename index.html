@@ -51,7 +51,7 @@
     /* Map */
     #map { position: fixed; inset: 0; }
     .maplibregl-canvas {
-      filter: invert(1) hue-rotate(200deg) saturate(0.75) brightness(0.85);
+      filter: brightness(0.22) contrast(1.6) saturate(0.55);
     }
     .maplibregl-ctrl-attrib {
       font-size: 9px !important;
@@ -378,7 +378,7 @@ const WPS_A = [
     id: 0, name: 'Baiersbronn', sub: 'Natur-Camp Tannenfels',
     day: 'Mi 13.05.', badge: 'Tag 1', emoji: '🌲',
     lng: 8.3740, lat: 48.5079,
-    zoom: 13.5, pitch: 62, bearing: -25,
+    zoom: 13.0, pitch: 52, bearing: -25,
     stats: [
       { icon: '🚐', val: '~480 km', lbl: 'Anreise' },
       { icon: '🏕️', val: 'Tannenfels', lbl: 'Camp' },
@@ -388,7 +388,7 @@ const WPS_A = [
     id: 1, name: 'Ruhestein', sub: 'Wildseeblick · Nationalpark',
     day: 'Do 14.05.', badge: 'Tag 2', emoji: '🦌',
     lng: 8.2541, lat: 48.5544,
-    zoom: 14, pitch: 68, bearing: 18,
+    zoom: 13.5, pitch: 55, bearing: 18,
     stats: [
       { icon: '🥾', val: '~10 km', lbl: 'Wanderung' },
       { icon: '⏱️', val: '3–4 h',  lbl: 'Dauer' },
@@ -408,7 +408,7 @@ const WPS_A = [
     id: 3, name: 'Feldberg', sub: 'Gipfel 1.493 m · Alpenblick',
     day: 'Sa 16.05.', badge: 'Tag 4', emoji: '⛰️',
     lng: 8.0047, lat: 47.8742,
-    zoom: 14.5, pitch: 72, bearing: -48,
+    zoom: 13.5, pitch: 54, bearing: -35,
     stats: [
       { icon: '⛰️', val: '1.493 m', lbl: 'Höhe' },
       { icon: '🥾', val: '~2 h',    lbl: 'Rundweg' },
@@ -500,6 +500,7 @@ let flyTimer       = null;
 let introSheetTimer = null;
 let userScrolling  = false;
 let scrollDebounce = null;
+let scrollRAF      = null;
 
 function activeWps() { return currentOption === 'A' ? WPS_A : WPS_B; }
 
@@ -509,7 +510,7 @@ function activeWps() { return currentOption === 'A' ? WPS_A : WPS_B; }
 function initMap() {
   map = new maplibregl.Map({
     container: 'map',
-    style:     'https://tiles.openfreemap.org/styles/liberty',
+    style:     'https://tiles.openfreemap.org/styles/positron',
     center:    [8.19, 48.23],
     zoom:      8.2, pitch: 45, bearing: -8,
     antialias: true,
@@ -527,7 +528,7 @@ function onMapLoad() {
     tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
     tileSize: 256, encoding: 'terrarium', maxzoom: 15,
   });
-  map.setTerrain({ source: 'terrain-dem', exaggeration: 2.0 });
+  map.setTerrain({ source: 'terrain-dem', exaggeration: 1.4 });
 
   // Sky
   map.addLayer({
@@ -707,7 +708,7 @@ function buildCards() {
 }
 
 function onCardsScroll() {
-  if (userScrolling) return;
+  if (userScrolling || isFlyingRoute) return;
   clearTimeout(scrollDebounce);
   scrollDebounce = setTimeout(() => {
     const wrap  = document.getElementById('cards');
@@ -721,19 +722,19 @@ function onCardsScroll() {
 }
 
 function scrollCardIntoView(idx) {
+  if (scrollRAF) { cancelAnimationFrame(scrollRAF); scrollRAF = null; }
   const wrap  = document.getElementById('cards');
   const cardW = (wrap.firstElementChild?.offsetWidth ?? 0) + 12;
   userScrolling = true;
   wrap.scrollTo({ left: idx * cardW, behavior: 'smooth' });
-  // rAF-basiert: userScrolling erst freigeben wenn Scroll wirklich still steht
   let last = wrap.scrollLeft, stableFrames = 0;
   const tick = () => {
     if (Math.abs(wrap.scrollLeft - last) < 0.5) {
-      if (++stableFrames > 6) { userScrolling = false; return; }
+      if (++stableFrames > 6) { userScrolling = false; scrollRAF = null; return; }
     } else { stableFrames = 0; last = wrap.scrollLeft; }
-    requestAnimationFrame(tick);
+    scrollRAF = requestAnimationFrame(tick);
   };
-  requestAnimationFrame(tick);
+  scrollRAF = requestAnimationFrame(tick);
 }
 
 // ════════════════════════════════════════════════
