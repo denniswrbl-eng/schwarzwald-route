@@ -244,6 +244,7 @@
 
     .card {
       flex: 0 0 calc(100vw - 56px);
+      max-width: 380px;
       scroll-snap-align: start;
       background: var(--bg2);
       border-radius: var(--r-card);
@@ -292,7 +293,7 @@
 
     /* Card photo */
     .card-photo {
-      width: 100%; height: 130px;
+      width: 100%; height: 180px;
       object-fit: cover;
       border-radius: 10px;
       display: block;
@@ -759,6 +760,7 @@ const TRAIN_STOPS = [
   { name: 'Dortmund Hbf',  lng: 7.459,  lat: 51.518  },
   { name: 'Köln Hbf',      lng: 6.959,  lat: 50.943  },
   { name: 'Mannheim Hbf',  lng: 8.469,  lat: 49.480  },
+  { name: 'Karlsruhe Hbf', lng: 8.403,  lat: 49.009  },
   { name: 'Freiburg Hbf',  lng: 7.842,  lat: 47.997  },
   { name: 'Hinterzarten',  lng: 8.1186, lat: 47.9065 },
   { name: 'Titisee',       lng: 8.143,  lat: 47.897  },
@@ -986,7 +988,14 @@ function buildTrainStops() {
   stopMarkers = [];
   if (currentOption !== 'B') return;
 
+  // Stops, die geografisch mit einem Hauptpin zusammenfallen, weglassen —
+  // sonst überlagert der kleine Stop-Marker den großen WPS_B-Pin.
+  const TOL = 0.005;
+  const isPinPosition = (lng, lat) =>
+    WPS_B.some(wp => Math.abs(wp.lng - lng) < TOL && Math.abs(wp.lat - lat) < TOL);
+
   TRAIN_STOPS.forEach(s => {
+    if (isPinPosition(s.lng, s.lat)) return;
     const el = document.createElement('div');
     el.className = 'train-stop';
     el.title = s.name;
