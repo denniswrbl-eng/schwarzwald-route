@@ -414,6 +414,7 @@
       background: var(--purple);
       border: 2px solid rgba(255,255,255,0.6);
       box-shadow: 0 1px 6px rgba(0,0,0,0.5);
+      pointer-events: none;
     }
     /* Hamm-Startpunkt (grau, dezent) — Option A */
     .hamm-stop {
@@ -421,6 +422,7 @@
       background: rgba(255,255,255,0.55);
       border: 1.5px solid rgba(0,0,0,0.6);
       box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      pointer-events: none;
     }
 
     /* Loading */
@@ -875,10 +877,12 @@ function onMapLoad() {
     layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
 
   // Option B: lokale Tagesrouten (Hinterzarten ↔ Feldberg, ↔ Schluchsee)
+  // Hinterzarten ↔ Titisee bewusst weggelassen — die arrive-Linie deckt
+  // dieses 2-km-Segment bereits ab; eine zweite Local-Line dort erzeugt
+  // Strich-Salat am Hub.
   const localB = [
     [[8.1186, 47.9065], [8.0047, 47.8742]],   // Hinterzarten → Feldberg
     [[8.1186, 47.9065], [8.0090, 47.8195]],   // Hinterzarten → Schluchsee
-    [[8.1186, 47.9065], [8.1500, 47.8980]],   // Hinterzarten → Titisee
   ];
   map.addSource('route-b-local', {
     type: 'geojson',
@@ -911,14 +915,14 @@ function onMapLoad() {
       'circle-opacity':      0,
     } });
 
-  // ── Waypoint markers ───────────────────────────
-  buildMarkers();
-
-  // ── Train stop dots ───────────────────────────
+  // ── Train stop dots (zuerst → liegen UNTER den Pins im DOM) ──
   buildTrainStops();
 
   // ── Hamm-Mini-Dot (Startpunkt Bulli-Anreise) ──
   buildHammStop();
+
+  // ── Waypoint markers (zuletzt → liegen OBEN, kein Stop verdeckt einen Pin) ──
+  buildMarkers();
 
   // ── Cards ──────────────────────────────────────
   buildCards();
@@ -988,9 +992,11 @@ function buildTrainStops() {
   stopMarkers = [];
   if (currentOption !== 'B') return;
 
-  // Stops, die geografisch mit einem Hauptpin zusammenfallen, weglassen —
-  // sonst überlagert der kleine Stop-Marker den großen WPS_B-Pin.
-  const TOL = 0.005;
+  // Stops im Umkreis von ~2 km um einen Hauptpin weglassen — sonst gibt's
+  // optisch einen "Doppelpunkt" (z.B. Pin Titisee + Hinterzarten-Stop, die
+  // 2,6 km auseinander liegen, sehen bei jedem Zoom wie überlagert aus).
+  // 0.025° ≈ 1,7 km Lng / 2,8 km Lat bei 47° N — fängt Hub-Nähe robust ab.
+  const TOL = 0.025;
   const isPinPosition = (lng, lat) =>
     WPS_B.some(wp => Math.abs(wp.lng - lng) < TOL && Math.abs(wp.lat - lat) < TOL);
 
@@ -1048,10 +1054,10 @@ function switchOption(opt) {
   // Update sheet meta
   document.getElementById('sheet-meta').textContent = opt === 'A' ? '4 Tage · Bulli' : '4 Tage · Zug + Zelt';
 
-  // Rebuild markers + stops + cards
-  buildMarkers();
+  // Rebuild stops + markers + cards (Pins zuletzt → DOM-Top → kein Verdecken)
   buildTrainStops();
   buildHammStop();
+  buildMarkers();
   buildCards();
   setActive(0);
 
