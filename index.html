@@ -645,7 +645,7 @@ const WPS_A = [
   {
     id: 3, name: 'Triberg', sub: 'Wasserfälle 163 m · Heimweg',
     day: 'Sa 16.05.', badge: 'Tag 4', emoji: '💧',
-    lng: 8.2220, lat: 48.0617,
+    lng: 8.2320, lat: 48.1310,
     zoom: 14, pitch: 50, bearing: 10,
     photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wasserfall_triberg.jpg?width=400',
     stats: [
@@ -689,7 +689,7 @@ const WPS_B = [
   {
     id: 2, name: 'Schluchsee', sub: 'Dreiseenbahn · Schwimmen',
     day: 'Fr 15.05.', badge: 'Tag 3', emoji: '🏊', isTrain: true,
-    lng: 8.0090, lat: 47.8195,
+    lng: 8.1664, lat: 47.8147,
     zoom: 13.5, pitch: 60, bearing: 25,
     travel: 'Dreiseenbahn ab Hinterzarten  ·  ~20 min',
     photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Schluchsee_Sommer_2012_-_3.jpg?width=400',
@@ -702,7 +702,7 @@ const WPS_B = [
   {
     id: 3, name: 'Triberg', sub: 'Wasserfälle · Schwarzwaldbahn heimwärts',
     day: 'Sa 16.05.', badge: 'Tag 4', emoji: '💧', isTrain: true,
-    lng: 8.2220, lat: 48.0617,
+    lng: 8.2320, lat: 48.1310,
     zoom: 14, pitch: 50, bearing: 10,
     travel: 'Schwarzwaldbahn: Titisee → Freiburg → Offenburg → Triberg  ·  dann weiter Dortmund',
     photo: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wasserfall_triberg.jpg?width=400',
@@ -750,7 +750,7 @@ const TRAIN_ROUTE = {
           [7.939,  47.975],   // Himmelreich
           [7.842,  47.997],   // Freiburg Hbf
           [7.776,  48.481],   // Offenburg
-          [8.222,  48.062],   // Triberg
+          [8.232,  48.131],   // Triberg
         ],
       },
     },
@@ -763,10 +763,11 @@ const TRAIN_STOPS = [
   { name: 'Köln Hbf',      lng: 6.959,  lat: 50.943  },
   { name: 'Mannheim Hbf',  lng: 8.469,  lat: 49.480  },
   { name: 'Karlsruhe Hbf', lng: 8.403,  lat: 49.009  },
+  { name: 'Offenburg',     lng: 7.776,  lat: 48.481  },
   { name: 'Freiburg Hbf',  lng: 7.842,  lat: 47.997  },
   { name: 'Hinterzarten',  lng: 8.1186, lat: 47.9065 },
   { name: 'Titisee',       lng: 8.143,  lat: 47.897  },
-  { name: 'Triberg',       lng: 8.222,  lat: 48.062  },
+  { name: 'Triberg',       lng: 8.232,  lat: 48.131  },
 ];
 
 // ════════════════════════════════════════════════
@@ -845,7 +846,7 @@ function onMapLoad() {
         { type: 'Feature', properties: { kind: 'arrive' },
           geometry: { type: 'LineString', coordinates: [[7.819, 51.679], [8.1397, 49.3517]] } },
         { type: 'Feature', properties: { kind: 'return' },
-          geometry: { type: 'LineString', coordinates: [[8.2220, 48.0617], [7.819, 51.679]] } },
+          geometry: { type: 'LineString', coordinates: [[8.2320, 48.1310], [7.819, 51.679]] } },
       ],
     },
   });
@@ -876,13 +877,13 @@ function onMapLoad() {
     paint: { 'line-color': '#bf5af2', 'line-width': 2.5, 'line-opacity': 0.7, 'line-dasharray': [1, 2.5] },
     layout: { 'line-cap': 'round', 'line-join': 'round', visibility: 'none' } });
 
-  // Option B: lokale Tagesrouten (Hinterzarten ↔ Feldberg, ↔ Schluchsee)
-  // Hinterzarten ↔ Titisee bewusst weggelassen — die arrive-Linie deckt
-  // dieses 2-km-Segment bereits ab; eine zweite Local-Line dort erzeugt
-  // Strich-Salat am Hub.
+  // Option B: lokale Tagesrouten — gehen visuell von Pin 1 (Titisee/Camp) aus.
+  // Hinterzarten als Real-Hub liegt zwar 2 km westlich, ist aber durch den
+  // Stop-Filter unsichtbar; würden die Linien dort starten, hingen sie im
+  // Nichts. Vom sichtbaren Camp-Pin auszugehen ist visuell konsistent.
   const localB = [
-    [[8.1186, 47.9065], [8.0047, 47.8742]],   // Hinterzarten → Feldberg
-    [[8.1186, 47.9065], [8.0090, 47.8195]],   // Hinterzarten → Schluchsee
+    [[8.143, 47.897], [8.0047, 47.8742]],   // Pin 1 (Titisee) → Feldberg
+    [[8.143, 47.897], [8.1664, 47.8147]],   // Pin 1 (Titisee) → Schluchsee
   ];
   map.addSource('route-b-local', {
     type: 'geojson',
