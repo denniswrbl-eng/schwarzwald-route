@@ -460,69 +460,9 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* Laura Splash (Erstbesuch-Reveal) — z-index über allem, auch über #loader */
-    #laura-splash {
-      position: fixed; inset: 0; z-index: 1000;
-      background: var(--bg0);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 14px;
-      padding: calc(var(--safe-t) + 32px) 28px calc(var(--safe-b) + 32px);
-      text-align: center;
-      cursor: pointer;
-      user-select: none;
-      transition: opacity 0.6s ease-out;
-      will-change: opacity;
-    }
-    #laura-splash.fade { opacity: 0; pointer-events: none; }
-    .laura-tree {
-      font-size: 64px;
-      line-height: 1;
-      opacity: 0;
-      animation: laura-fade-up 0.6s 0ms ease-out forwards;
-    }
-    .laura-title {
-      font-size: 34px; font-weight: 700; letter-spacing: -0.6px;
-      color: #e8c890;
-      opacity: 0;
-      animation: laura-fade-up 0.6s 200ms ease-out forwards;
-    }
-    .laura-sub {
-      font-size: 15px; font-weight: 500;
-      color: var(--label2);
-      opacity: 0;
-      animation: laura-fade-up 0.6s 800ms ease-out forwards;
-    }
-    .laura-hint {
-      margin-top: 28px;
-      font-size: 13px; font-weight: 500;
-      color: var(--label3);
-      opacity: 0;
-      animation: laura-hint-in 0.6s 1400ms ease-out forwards,
-                 laura-hint-pulse 2.4s 2000ms ease-in-out infinite;
-    }
-    @keyframes laura-fade-up {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes laura-hint-in {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 0.55; transform: translateY(0); }
-    }
-    @keyframes laura-hint-pulse {
-      0%,100% { opacity: 0.55; }
-      50%      { opacity: 0.95; }
-    }
   </style>
 </head>
 <body>
-
-<div id="laura-splash" aria-label="Tippen zum Starten">
-  <div class="laura-tree" aria-hidden="true">🌲</div>
-  <div class="laura-title">Für dich, Laura</div>
-  <div class="laura-sub">13. – 16. Mai 2026 · Schwarzwald</div>
-  <div class="laura-hint" aria-hidden="true">Tippen zum Starten</div>
-</div>
 
 <div id="loader">
   <div class="loader-emoji">🌲</div>
@@ -536,8 +476,8 @@
 <div id="header">
   <div class="hdr-row1">
     <div>
-      <div class="hdr-title">Schwarzwald Route</div>
-      <div class="hdr-sub">13.–16. Mai 2026 · 2 Personen</div>
+      <div class="hdr-title">Schwarzwald</div>
+      <div class="hdr-sub">13.–16. Mai 2026</div>
     </div>
     <button id="fly-btn" onclick="toggleFlyRoute()" aria-label="Automatischen Kamera-Flug starten">
       <span id="fly-icon">▶</span>
@@ -579,29 +519,6 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════
-//  LAURA SPLASH (Erstbesuch-Reveal)
-// ════════════════════════════════════════════════
-(function() {
-  const splash = document.getElementById('laura-splash');
-  if (!splash) return;
-  if (localStorage.getItem('lauraSplashSeen')) {
-    splash.remove();
-    return;
-  }
-  let dismissed = false;
-  function dismiss() {
-    if (dismissed) return;
-    dismissed = true;
-    try { localStorage.setItem('lauraSplashSeen', '1'); } catch (e) {}
-    splash.classList.add('fade');
-    setTimeout(() => splash.remove(), 700);
-  }
-  splash.addEventListener('click', dismiss);
-  splash.addEventListener('touchstart', dismiss, { passive: true });
-})();
-
-
 // ════════════════════════════════════════════════
 //  DATA — OPTION A (Bulli)
 // ════════════════════════════════════════════════
@@ -960,7 +877,7 @@ function onMapLoad() {
 }
 
 // Einmaliger Swipe-Hint: leichter Bounce der ersten Card,
-// damit Laura sieht, dass die Cards horizontal swipebar sind.
+// damit man sieht, dass die Cards horizontal swipebar sind.
 function runSwipeHint() {
   if (sessionStorage.getItem('swipeHintShown')) return;
   const wrap = document.getElementById('cards');
